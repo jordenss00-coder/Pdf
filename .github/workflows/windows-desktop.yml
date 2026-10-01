@@ -62,6 +62,61 @@ jobs:
           Copy-Item $report release/installed-smoke.json
           $uninstall = Start-Process "$install/unins000.exe" -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART') -PassThru -Wait -WindowStyle Hidden
           if ($uninstall.ExitCode -ne 0) { throw 'Uninstall failed' }
+      - name: Upgrade over the previous release
+        shell: pwsh
+        run: |
+          $key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{A77D5BC2-54A5-4B23-A321-2817D533FEC0}_is1'
+          $old = Join-Path $env:RUNNER_TEMP 'previous-setup.exe'
+          Invoke-WebRequest 'https://github.com/jordenss00-coder/Pdf/releases/download/v0.3.1/PDF-Atolye-Setup.exe' -OutFile $old
+          $p = Start-Process $old -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART') -PassThru -Wait
+          if ($p.ExitCode -ne 0 -or (Get-ItemProperty $key).DisplayVersion -ne '0.3.1') { throw 'Previous version install failed' }
+          $data = Join-Path $env:LOCALAPPDATA 'PDFAtolye'
+          New-Item -ItemType Directory -Force $data | Out-Null
+          Set-Content (Join-Path $data 'keep-me.txt') 'user data'
+          $log = Join-Path $env:RUNNER_TEMP 'upgrade-setup.log'
+          $p = Start-Process release/PDF-Atolye-Setup.exe -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/LOG=$log") -PassThru -Wait
+          if ($p.ExitCode -ne 0) { Get-Content $log; throw 'Upgrade failed' }
+          if (-not (Select-String -Path $log -Pattern 'Previous version removed: 0.3.1' -Quiet)) { Get-Content $log; throw 'Previous version was not removed first' }
+          $version = (Select-String -Path app/version.py -Pattern '^VERSION = "(\d+\.\d+\.\d+)"').Matches[0].Groups[1].Value
+          if ((Get-ItemProperty $key).DisplayVersion -ne $version) { throw 'New version not registered' }
+          if (-not (Test-Path (Join-Path $data 'keep-me.txt'))) { throw 'User data was removed' }
+          Copy-Item $log release/
+      - name: Update the installed app from a release feed
+        shell: pwsh
+        run: |
+          $feed = Join-Path $env:RUNNER_TEMP 'feed'
+          New-Item -ItemType Directory -Force "$feed/v99.0.0" | Out-Null
+          Copy-Item release/PDF-Atolye-Setup.exe, release/SHA256SUMS.txt "$feed/v99.0.0/"
+          $size = (Get-Item release/PDF-Atolye-Setup.exe).Length
+          $base = 'http://127.0.0.1:8899'
+          @(@{ tag_name = 'v99.0.0'; name = 'CI update'; draft = $false; prerelease = $true; body = 'CI'; assets = @(
+              @{ name = 'PDF-Atolye-Setup.exe'; size = $size; browser_download_url = "$base/v99.0.0/PDF-Atolye-Setup.exe" },
+              @{ name = 'SHA256SUMS.txt'; size = 200; browser_download_url = "$base/v99.0.0/SHA256SUMS.txt" }) }) |
+            ConvertTo-Json -Depth 5 -AsArray | Set-Content "$feed/releases.json"
+          $server = Start-Process python -ArgumentList @('-m', 'http.server', '8899', '--bind', '127.0.0.1', '--directory', $feed) -PassThru -WindowStyle Hidden
+          $install = Join-Path $env:LOCALAPPDATA 'Programs\PDFAtolye'
+          try {
+            for ($i = 0; $i -lt 30; $i++) {
+              try { Invoke-WebRequest "$base/releases.json" | Out-Null; break } catch { Start-Sleep 1 }
+            }
+            $env:PDF_UPDATE_FEED = "$base/releases.json"
+            $report = Join-Path $env:RUNNER_TEMP 'update-smoke.json'
+            $p = Start-Process "$install/PDF-Atolye.exe" -ArgumentList @('--update-smoke-test', $report) -PassThru -WindowStyle Hidden
+            if (-not $p.WaitForExit(300000)) { Stop-Process -Id $p.Id -Force; throw 'Update test timed out' }
+            Get-Content $report
+            if ($p.ExitCode -ne 0 -or (Get-Content $report | ConvertFrom-Json).status -ne 'passed') { throw 'Update download failed' }
+            $log = (Get-Content $report | ConvertFrom-Json).setup_log
+            $deadline = (Get-Date).AddMinutes(5)
+            while (-not ((Test-Path $log) -and (Select-String -Path $log -Pattern 'Log closed' -Quiet))) {
+              if ((Get-Date) -gt $deadline) { Get-Content $log -ErrorAction SilentlyContinue; throw 'Updater-started setup did not finish' }
+              Start-Sleep 2
+            }
+            if (-not (Select-String -Path $log -Pattern 'Installation process succeeded' -Quiet)) { Get-Content $log; throw 'Update install failed' }
+            if (-not (Select-String -Path $log -Pattern 'Previous version removed' -Quiet)) { Get-Content $log; throw 'Update did not remove the previous version' }
+            Copy-Item $report, $log release/
+          } finally { Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue }
+          $u = Start-Process "$install/unins000.exe" -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART') -PassThru -Wait
+          if ($u.ExitCode -ne 0) { throw 'Uninstall failed' }
       - name: Test actual WebView2 desktop window
         shell: pwsh
         run: |
@@ -86,3 +141,4 @@ jobs:
             build/**/warn-*.txt
             ${{ runner.temp }}/pdf-desktop-smoke/*.log
             ${{ runner.temp }}/*smoke.json
+            ${{ runner.temp }}/*.log
