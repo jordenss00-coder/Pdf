@@ -142,7 +142,7 @@ def self_test(url, token):
         client.delete("/api/files").raise_for_status()
 
 
-def launch(smoke_report=None):
+def launch(smoke_report=None, ui_report=None):
     root = user_directory().resolve()
     configure(root)
     instance = SingleInstance(root)
@@ -167,11 +167,30 @@ def launch(smoke_report=None):
         import webview
         webview.settings["ALLOW_DOWNLOADS"] = True
         webview.settings["ALLOW_FILE_URLS"] = False
-        webview.create_window("PDF Atölye", url + "/desktop/" + token,
+        window = webview.create_window("PDF Atölye", url + "/desktop/" + token,
                               width=1280, height=850, min_size=(800, 600), text_select=True,
-                              confirm_close=True)
-        webview.start(gui="edgechromium", private_mode=False, storage_path=str(root / "webview"),
+                              confirm_close=not bool(ui_report), hidden=bool(ui_report))
+        def check_window():
+            result = {"status": "failed", "error": "Window content did not load"}
+            try:
+                deadline = time.monotonic() + 45
+                while time.monotonic() < deadline:
+                    try:
+                        title = window.evaluate_js("document.querySelector('h1')?.textContent || ''")
+                        if title and "PDF" in title:
+                            result = {"status": "passed", "engine": "edgechromium", "heading": title,
+                                      "tool_links": window.evaluate_js("document.querySelectorAll('a.tile').length")}
+                            break
+                    except Exception:
+                        pass
+                    time.sleep(0.2)
+            finally:
+                Path(ui_report).write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
+                window.destroy()
+        webview.start(check_window if ui_report else None, gui="edgechromium", private_mode=False, storage_path=str(root / "webview"),
                       localization={"global.quitConfirmation": "PDF Atölye kapatılsın mı? Devam eden işlemler durdurulur."})
+        if ui_report and json.loads(Path(ui_report).read_text(encoding="utf-8"))["status"] != "passed":
+            raise RuntimeError("Window smoke test failed")
     finally:
         if proc:
             stop_server(proc)
@@ -184,6 +203,7 @@ def main():
     parser.add_argument("--worker")
     parser.add_argument("--serve-desktop", type=int)
     parser.add_argument("--smoke-test", metavar="REPORT_JSON")
+    parser.add_argument("--ui-smoke-test", metavar="REPORT_JSON")
     args = parser.parse_args()
     if args.worker:
         from app.worker import run_job_file
@@ -192,10 +212,11 @@ def main():
         serve(args.serve_desktop)
     else:
         try:
-            launch(args.smoke_test)
+            launch(args.smoke_test, args.ui_smoke_test)
         except Exception as exc:
-            if args.smoke_test:
-                Path(args.smoke_test).write_text(json.dumps({"status": "failed", "error": str(exc)}), encoding="utf-8")
+            report = args.smoke_test or args.ui_smoke_test
+            if report:
+                Path(report).write_text(json.dumps({"status": "failed", "error": str(exc)}), encoding="utf-8")
             else:
                 show_error(f"Uygulama açılamadı: {exc}\n\nWindows 10/11 ve Microsoft Edge WebView2 Runtime gereklidir.\nhttps://developer.microsoft.com/microsoft-edge/webview2/")
             raise SystemExit(1)

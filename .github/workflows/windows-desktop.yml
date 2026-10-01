@@ -14,6 +14,9 @@ on:
       - '.github/workflows/windows-desktop.yml'
 permissions:
   contents: read
+concurrency:
+  group: windows-desktop-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   windows:
     runs-on: windows-latest
@@ -59,6 +62,16 @@ jobs:
           Copy-Item $report release/installed-smoke.json
           $uninstall = Start-Process "$install/unins000.exe" -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART') -PassThru -Wait -WindowStyle Hidden
           if ($uninstall.ExitCode -ne 0) { throw 'Uninstall failed' }
+      - name: Test actual WebView2 desktop window
+        shell: pwsh
+        run: |
+          $env:PDF_DESKTOP_HOME = Join-Path $env:RUNNER_TEMP 'pdf-desktop-ui'
+          $report = Join-Path $env:RUNNER_TEMP 'desktop-ui-smoke.json'
+          $process = Start-Process dist/PDF-Atolye/PDF-Atolye.exe -ArgumentList @('--ui-smoke-test', $report) -PassThru -WindowStyle Hidden
+          if (-not $process.WaitForExit(120000)) { Stop-Process -Id $process.Id -Force; throw 'Window test timed out' }
+          Get-Content $report -ErrorAction SilentlyContinue
+          if ($process.ExitCode -ne 0 -or (Get-Content $report | ConvertFrom-Json).status -ne 'passed') { throw 'WebView2 window test failed' }
+          Copy-Item $report release/desktop-ui-smoke.json
       - uses: actions/upload-artifact@v4
         with:
           name: PDF-Atolye-Windows-x64
@@ -70,6 +83,6 @@ jobs:
         with:
           name: windows-build-diagnostics
           path: |
-            build/PDF-Atolye/warn-*.txt
+            build/**/warn-*.txt
             ${{ runner.temp }}/pdf-desktop-smoke/*.log
             ${{ runner.temp }}/*smoke.json
