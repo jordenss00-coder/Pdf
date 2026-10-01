@@ -21,6 +21,18 @@ uygulamasına dönüştürmek. Araç kapsamı ve seç → işle → indir akış
 
 ## Bu geliştirme
 
+### Kullanım kolaylığı — 0.3.1
+
+Tek PDF yüklemesinde doğrudan düzenleyici açılıyor. Ctrl + tekerlek yakınlaştırması,
+Ctrl/Boşluk/orta tuş ile gezinme, görünür araç adları, kısayol rehberi ve Ctrl + S
+eklendi. Belgenin ayar panelinin altına taşması ayrı kaydırma alanıyla düzeltildi.
+Edge etkileşim testleri ve 27 Python testi geçti. Test edilen kod: `3bc0dc8`.
+GitHub'da paketli EXE, kurulum/kaldırma ve gerçek WebView2 penceresi testleri geçti
+([derleme](https://github.com/jordenss00-coder/Pdf/actions/runs/36856379905)); aynı paket
+bu bilgisayarda da işlem ve pencere testini geçti.
+[0.3.1 Windows ön sürümü](https://github.com/jordenss00-coder/Pdf/releases/tag/v0.3.1):
+kurulum EXE'si, ZIP ve SHA-256 dosyası.
+
 ### Yeni yön: Windows masaüstü — 0.3.0
 
 Kullanıcı tercihiyle öncelik Windows uygulamasına geçti; canlı site yayını ertelendi.

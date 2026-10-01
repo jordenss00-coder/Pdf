@@ -51,6 +51,17 @@ const fs = require('node:fs');
     const scrollAfter = await viewport.evaluate(el => ({ x: el.scrollLeft, y: el.scrollTop }));
     assert(scrollAfter.x > scrollBefore.x && scrollAfter.y > scrollBefore.y, 'Ctrl+drag pans both axes');
     assert.equal(await page.locator('.obj').count(), 0, 'panning does not draw');
+    for (const gesture of ['Space', 'hand', 'middle']) {
+      if (gesture === 'hand') await page.getByRole('button', { name: 'Sayfada gezin', exact: true }).click();
+      if (gesture === 'Space') await page.keyboard.down('Space');
+      const previous = await viewport.evaluate(el => el.scrollTop);
+      await page.mouse.move(point.x, point.y);
+      await page.mouse.down({ button: gesture === 'middle' ? 'middle' : 'left' });
+      await page.mouse.move(point.x, point.y - 40, { steps: 4 });
+      await page.mouse.up({ button: gesture === 'middle' ? 'middle' : 'left' });
+      if (gesture === 'Space') await page.keyboard.up('Space');
+      assert((await viewport.evaluate(el => el.scrollTop)) > previous, `${gesture} pans`);
+    }
     await page.keyboard.press('Control+0');
     assert(await viewport.evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'fit removes horizontal overflow');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'page does not overlap panel');
@@ -67,16 +78,34 @@ const fs = require('node:fs');
     await page.keyboard.press('Control+z');
     await page.keyboard.press('Control+y');
     assert(await page.locator('.obj').count() > 0, 'undo/redo restores edit');
+    await page.getByRole('combobox', { name: 'Bu PDF ile başka işlem yap' }).selectOption('compress');
+    assert(await page.getByText('Kaydedilmemiş değişiklikler', { exact: true }).isVisible());
+    await page.getByRole('button', { name: 'Düzenlemeye devam et', exact: true }).click();
+    assert(await page.locator('.obj').count() > 0, 'cancel tool switch keeps changes');
     await page.screenshot({ path: 'test-results/editor-desktop.png', fullPage: true });
     await page.setViewportSize({ width: 800, height: 700 });
     await page.waitForTimeout(250);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), '800px window stays within screen');
     assert(await page.getByRole('button', { name: 'Mevcut metni düzelt', exact: true }).isVisible());
     await page.screenshot({ path: 'test-results/editor-small.png', fullPage: true });
+    const resultResponse = page.waitForResponse(r => r.url().includes('/api/process/') && r.request().method() === 'POST');
     await page.keyboard.press('Control+s');
     await page.locator('.result').waitFor({ timeout: 30000 });
+    const result = await (await resultResponse).json();
+    const download = await page.request.get(`${new URL(page.url()).origin}/api/files/${result.result.id}/download`);
+    assert(download.ok(), 'edited PDF downloads');
+    fs.writeFileSync('test-results/editor-output.pdf', await download.body());
+    await page.goto((process.env.BASE_URL || 'http://127.0.0.1:8876') + '/#/');
+    const picker = page.waitForEvent('filechooser');
+    await page.getByRole('button', { name: 'Dosya seç', exact: true }).click();
+    await (await picker).setFiles([
+      { name: 'first.pdf', mimeType: 'application/pdf', buffer: file },
+      { name: 'second.pdf', mimeType: 'application/pdf', buffer: file },
+    ]);
+    await page.locator('.upload-previews img').first().waitFor();
+    assert.equal(await page.locator('.upload-previews img').count(), 2, 'multiple upload shows both previews');
     assert.deepEqual(errors, [], 'no JavaScript exceptions');
-    console.log('PASS: drop preview, image loading, zoom anchor, Ctrl drag, no accidental draw, fit, help, typing, undo/redo, small window, Ctrl+S export.');
+    console.log('PASS: drop preview, image loading, zoom anchor, Ctrl/Space/hand/middle drag, no accidental draw, fit, help, typing, undo/redo, switch guard, small window, Ctrl+S export/download, multi-file previews.');
   } catch (e) { await page.screenshot({ path: 'test-results/editor-failure.png', fullPage: true }); throw e; }
   finally { await browser.close(); }
 })().catch(e => { console.error(e); process.exit(1); });

@@ -1,5 +1,43 @@
 # Test raporu — 1 Ekim 2026
 
+## Windows masaüstü 0.3.1 — kullanım kolaylığı
+
+Kullanıcının paylaştığı 55 saniyelik kayıt yerelde incelendi. Kayıt ve kullanıcı
+belgeleri depoya eklenmedi; testlerde yapay iki sayfalı PDF kullanıldı.
+
+- 27 Python testi geçti (3,914 saniye); 11 JavaScript modülünün sözdizimi geçerli.
+- Gerçek Edge üzerinde `scripts/check-editor.cjs` çalıştırıldı:
+  dosya bırakınca doğrudan açılış, iki sayfanın görüntülenmesi, Ctrl + tekerlek
+  yakınlaştırması ve işaretçi odağı, Ctrl/Boşluk/orta tuş/gezinme aracıyla taşıma.
+- Taşıma sırasında seçili çizim aracının nesne oluşturmadığı doğrulandı.
+- Sığdırmada yatay taşma olmaması, kısayol yardımı, metin yazma, geri al/yinele,
+  araç değiştirme uyarısından vazgeçince değişikliklerin korunması doğrulandı.
+- 1280 × 900 ve 800 × 700 pencerelerde ekran dışına yatay taşma yok.
+- Ctrl + S ile sonuç üretildi ve PDF indirildi. Çıktıda iki sayfa ve eklenen metin
+  doğrulandı.
+- Dosya seçiciden çoklu yüklemede iki önizleme göründü; JavaScript istisnası yok.
+- Ekran kanıtları: `test-results/editor-desktop.png`, `editor-small.png`.
+- [Windows paketleme](https://github.com/jordenss00-coder/Pdf/actions/runs/36856379905)
+  (`3bc0dc8`) başarılı: paketli EXE ile yükle/döndür/DOCX/Markdown/indir/sil, kurulum,
+  kurulu EXE, kaldırma ve gerçek WebView2 penceresi (43 araç bağlantısı) geçti.
+- Aynı paket bu bilgisayarda ZIP'ten açılarak tekrar sınandı: işlem testi ve WebView2
+  pencere testi geçti; paketteki `editor.js` kaynakla aynı. SHA-256 değerleri eşleşti.
+- Bağımsız tekrar: 27 Python testi, 11 JavaScript modülü ve `check-editor.cjs`
+  bu bilgisayarda Edge ile yeniden çalıştırıldı; tümü geçti.
+
+Tekrar çalıştırma: yerel test sunucusu, Playwright/Edge ve yapay iki sayfalı PDF
+ile `node scripts/check-editor.cjs dosya.pdf`. `BASE_URL` test sunucusunu,
+`PLAYWRIGHT_MODULE` mevcut Playwright kurulumunu seçebilir. Çıktılar Git dışındaki
+`test-results` klasörüne yazılır. Betik yalnızca test sunucusuna karşı çalıştırılmalı.
+
+Kalanlar: dokunmatik ekran/kalem hareketleri ve büyük/karmaşık belgelerle geniş
+kullanıcı testi. WebView2 içindeki yerel dosya/indirme diyaloglarının tamamı otomatik
+olarak sınanmıyor; Edge testi dosya seçme olayını kullanıyor.
+
+Bilinen küçük sorun: Arial ile eklenen metinde boşluk ve bölünmez boşluk aynı
+glifi kullandığından PDF'ten kopyalanan metinde boşluk U+00A0 olarak gelebilir.
+Görünüm ve PDF içi arama etkilenmiyor; düzeltme sonraki sürüme bırakıldı.
+
 ## Windows masaüstü 0.3.0
 
 - Kaynak masaüstü başlatıcısında özel sunucu → yükle → döndür/DOCX/Markdown →

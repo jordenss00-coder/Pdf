@@ -12,6 +12,10 @@ altyapısı korunur; canlı sunucu/alan adı işleri ertelenmiştir.
 - [x] Gerçek WebView2 penceresinin açılma testi
 - [x] Kurulum, kurulu EXE ve kaldırma testi
 - [x] İndirilebilir GitHub ön sürümü ve son test raporu
+- [x] Yüklemede doğrudan PDF görünümü ve çoklu dosya önizlemeleri
+- [x] Ctrl + tekerlek/klavye ile yakınlaştırma, sürükleyerek gezinme
+- [x] Okunabilir araç adları, görünür kısayollar ve yardım penceresi
+- [x] Editör etkileşim testi: yazma, geri alma, çıktı üretme ve küçük pencere
 - [ ] Kullanıcının bilgisayarında dosya seçme/indirme ve imza/kamera kontrolleri
 - [ ] Kod imzalama ve otomatik güncelleme (sonraki sürüm)
 

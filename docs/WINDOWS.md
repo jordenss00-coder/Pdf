@@ -18,6 +18,25 @@ Bu bir ön sürümdür; son durum STATUS ve TEST_REPORT'tadır.
 
 ## Dosyalar ve ayarlar
 
+### Düzenleyiciyi kullanma (0.3.1)
+
+Ana ekrana tek, kilitsiz PDF bırak veya dosya seç: belge doğrudan açılır.
+Sol panelde araç adı ve tuşu görünür. Açık belgeyi başka araçta kullanmak için
+dosya adının yanındaki menüyü kullan. Düzenlemeleri önce kaydet; sonuç ekranındaki
+araçlarla devam edersen değişmiş belge aktarılır.
+
+| Kontrol | İşlev |
+|---|---|
+| Ctrl + tekerlek, Ctrl + artı/eksi | PDF'yi yakınlaştır/uzaklaştır |
+| Ctrl + 0 | Genişliğe sığdır |
+| Ctrl + sürükle, Boşluk + sürükle, orta tuş | Sayfada gezin |
+| G | Gezinme aracını seç; sol tuşla sürükle |
+| Ctrl + Z / Ctrl + Y | Geri al / yinele |
+| Ctrl + S | Değişiklikleri işle, sonuç ekranını aç |
+| Kısayollar düğmesi | Diğer tuşları ve açıklamalarını göster |
+
+### Saklama konumu
+
 `%LOCALAPPDATA%\PDFAtolye` altında:
 
 - `data`: süreli yüklemeler ve çıktılar
