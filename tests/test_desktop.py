@@ -24,6 +24,37 @@ class DesktopTests(unittest.TestCase):
             self.assertEqual(os.environ["PDF_MODE"], "local")
             self.assertEqual(Path(os.environ["PDF_DATA_DIR"]), Path(td) / "data")
             self.assertEqual(Path(os.environ["PDF_CONFIG_FILE"]), Path(td) / "config.json")
+            self.assertEqual(Path(os.environ["PDF_UPDATE_DIR"]), Path(td) / "updates")
+
+    def test_update_starts_only_verified_installer(self):
+        from app.updates import UpdateError
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            api = desktop.DesktopApi(root)
+            self.assertFalse(api.install_update()["ok"])
+            setup = root / "updates" / "PDF-Atolye-Setup-99.0.0.exe"
+            with patch("app.updates.pending_installer", return_value=(setup, "99.0.0")), \
+                 patch.object(desktop.subprocess, "Popen") as popen:
+                self.assertEqual(desktop.start_installer(root), "99.0.0")
+            args, kwargs = popen.call_args
+            self.assertEqual(args[0], [str(setup), *desktop.UPDATE_FLAGS])
+            self.assertIn("/UPDATE=1", args[0])
+            self.assertEqual(kwargs["cwd"], str(setup.parent))
+            with patch("app.updates.pending_installer", side_effect=UpdateError("yok")):
+                self.assertEqual(api.install_update(), {"ok": False, "error": "yok"})
+
+    @unittest.skipUnless(os.name == "nt", "Windows mutex")
+    def test_app_mutex_is_visible_while_held(self):
+        import ctypes
+        handle = desktop.hold_app_mutex()
+        try:
+            self.assertTrue(handle)
+            opened = ctypes.windll.kernel32.OpenMutexW(0x00100000, False, desktop.APP_MUTEX)
+            self.assertTrue(opened)
+            ctypes.windll.kernel32.CloseHandle(opened)
+        finally:
+            desktop.release_app_mutex(handle)
+        self.assertFalse(ctypes.windll.kernel32.OpenMutexW(0x00100000, False, desktop.APP_MUTEX))
 
     def test_port_reuse_and_conflict(self):
         with tempfile.TemporaryDirectory() as td:

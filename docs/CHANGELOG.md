@@ -1,5 +1,21 @@
 # Değişiklik günlüğü
 
+## 0.4.0 — güncelleme, yükseltmeli kurulum, karanlık tema, 1 Ekim 2026
+
+- Uygulama içi güncelleme: GitHub sürümleri açılışta en çok 6 saatte bir denetlenir;
+  otomatik denetim ayarlardan kapatılabilir.
+- Kurulum dosyası arka planda indirilir; boyutu ve `SHA256SUMS.txt` özeti doğrulanmadan
+  kurulmaz. Kurulumdan hemen önce özet yeniden denetlenir.
+- Güncelleme şeridi, indirme ilerlemesi, “Neler yeni?” penceresi ve kurulum onayı.
+- Kurulum, açık uygulamanın kapanmasını bekler; önceki sürümü sessizce kaldırıp yenisini kurar.
+  Kullanıcı verisi korunur. Uygulama içinden başlatılan kurulum bitince uygulama yeniden açılır.
+- Kurulumun sürüm numarası `app/version.py` dosyasından alınır.
+- Karanlık/açık tema düğmesi; varsayılan sistem teması, açılışta yanlış tema görünmez.
+- Koyu modda düzenleyici arka planı, araç menüsü ve hata/tamam renkleri düzeltildi.
+- Araç kartları, düğmeler, kategori filtreleri, kaydırma çubukları ve pencerelerde görsel iyileştirmeler.
+- Ayarlar penceresi bölümlere ayrıldı: Görünüm, Güncellemeler, Bu bilgisayarda bulunanlar, Yapay zekâ.
+- Windows CI: v0.3.1 üzerine yükseltme ve yerel sürüm kaynağından uçtan uca güncelleme testleri.
+
 ## 0.3.1 — kullanım kolaylığı, 1 Ekim 2026
 
 - Tek PDF yüklemesinden doğrudan düzenleyiciye geçiş; çoklu yüklemede önizlemeler.

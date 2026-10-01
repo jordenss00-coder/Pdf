@@ -8,6 +8,8 @@ import mountPages from "./ws-pages.js";
 import mountEditor from "./editor.js";
 import { mountCompare, mountHtml, mountScan } from "./ws-misc.js";
 import { mountWorkflows } from "./workflows.js";
+import { mountThemeButton, onThemeChange, toggleTheme, current as currentTheme, followsSystem, nextLabel } from "./theme.js";
+import { initUpdates, updateSection } from "./updates.js";
 
 const app = document.getElementById("app");
 const search = document.getElementById("search");
@@ -314,7 +316,7 @@ function toolView(t) {
       h("div.panel-foot", runBtn));
     wrap.append(h("div.tool-layout", space, panel));
     if (t.ws === "editor" && state.files[0]) {
-      const switcher = h("select", { "aria-label": "Bu PDF ile başka işlem yap", onchange: async (e) => {
+      const switcher = h("select.input", { "aria-label": "Bu PDF ile başka işlem yap", onchange: async (e) => {
         const id = e.target.value;
         e.target.value = "";
         if (!id) return;
@@ -482,9 +484,11 @@ async function openSettings() {
   let s = {};
   try { s = await api.settings(); } catch { /* yoksay */ }
   const yes = (ok, label, hint) => h("div", h("span", { class: ok ? "ok" : "no" }, icon(ok ? "check" : "minus")), h("span", label), hint && !ok ? h("span.hint", `— ${hint}`) : null);
-  const key = h("input.input", { type: "password", placeholder: s.has_key ? `Kayıtlı anahtar ${s.key_hint || ""}` : "sk-ant-…", autocomplete: "off" });
+  const key = h("input.input#api-key", { type: "password", placeholder: s.has_key ? `Kayıtlı anahtar ${s.key_hint || ""}` : "sk-ant-…", autocomplete: "off" });
   const body = [
-    h("div.field", h("span.field-label", "Bu bilgisayarda bulunanlar"),
+    themeSection(),
+    runtime.updates ? updateSection() : null,
+    h("section.set-sec", h("h3", "Bu bilgisayarda bulunanlar"),
       h("div.caps",
         yes(caps.word, "Microsoft Word", "Word dönüşümleri için"),
         yes(caps.excel, "Microsoft Excel", "Excel dönüşümleri için"),
@@ -493,8 +497,9 @@ async function openSettings() {
         yes((caps.ocr_languages || []).length > 0, `OCR dilleri: ${(caps.ocr_languages || []).join(", ") || "yok"}`),
         yes(caps.ghostscript, "Ghostscript", "tam uyumlu PDF/A için (isteğe bağlı)"),
         yes(caps.ai, "Claude API anahtarı", "yapay zekâ araçları için"))),
-    h("div.field", h("label.field-label", "Anthropic API anahtarı"), key,
-      h("div.hint", "Özetleme ve çeviri belgeyi Anthropic'e gönderir. Anahtar bu bilgisayardaki config.json dosyasında saklanır. Ayrıca ANTHROPIC_MODEL ortam değişkeni ayarlanmalıdır.")),
+    h("section.set-sec", h("h3", "Yapay zekâ"),
+      h("div.field", h("label.field-label", { for: "api-key" }, "Anthropic API anahtarı"), key,
+        h("div.hint", "Özetleme ve çeviri belgeyi Anthropic'e gönderir. Anahtar bu bilgisayardaki config.json dosyasında saklanır. Ayrıca ANTHROPIC_MODEL ortam değişkeni ayarlanmalıdır."))),
   ];
   const v = await dialog({
     title: "Ayarlar", body,
@@ -513,9 +518,22 @@ async function openSettings() {
   } catch (e) { toast(e.message, "err"); }
 }
 
+function themeSection() {
+  const row = h("div.set-row");
+  const sec = h("section.set-sec", h("h3", "Görünüm"), row);
+  const render = () => row.replaceChildren(
+    h("div", h("b", currentTheme() === "dark" ? "Koyu tema" : "Açık tema"),
+      h("div.hint", followsSystem() ? "Sistem ayarını izliyor." : "Bu bilgisayar için seçildi; sistem ayarından bağımsız.")),
+    h("button.btn.sm", { type: "button", onclick: toggleTheme }, icon(currentTheme() === "dark" ? "sun" : "moon"), nextLabel()));
+  const off = onThemeChange(() => { if (!sec.isConnected) { off(); return; } render(); });
+  render();
+  return sec;
+}
+
 // ---------------- başlat ----------------
 
 async function start() {
+  mountThemeButton(document.getElementById("theme-btn"));
   document.getElementById("settings-btn").append(icon("settings"));
   document.getElementById("settings-btn").addEventListener("click", openSettings);
   try { runtime = await api.runtime(); } catch { clear(app).append(h("div.wrap", h("p.note.warn", "Sunucuya ulaşılamadı. Uygulamayı başlatıp sayfayı yenile."))); return; }
@@ -531,6 +549,7 @@ async function start() {
   logout.addEventListener("click", async () => { try { await api.logout(); authenticated = false; handoff = null; route(); } catch (e) { toast(e.message, "err"); } });
   window.addEventListener("hashchange", route);
   route();
+  if (!runtime.login_required || authenticated) initUpdates(runtime);
 }
 
 function loginView() {
