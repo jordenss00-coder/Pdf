@@ -1,8 +1,8 @@
-# Windows masaüstü sürümü — 0.3.0
+# Windows masaüstü sürümü
 
 ## Kullanım
 
-[PDF-Atolye-Setup.exe dosyasını indir](https://github.com/jordenss00-coder/Pdf/releases/download/v0.3.0/PDF-Atolye-Setup.exe),
+[PDF-Atolye-Setup.exe dosyasını indir](https://github.com/jordenss00-coder/Pdf/releases/download/v0.3.1/PDF-Atolye-Setup.exe),
 çalıştır ve kurulumdan sonra Başlat menüsünden PDF Atölye'yi aç.
 Bu bir ön sürümdür; son durum STATUS ve TEST_REPORT'tadır.
 
@@ -15,6 +15,22 @@ Bu bir ön sürümdür; son durum STATUS ve TEST_REPORT'tadır.
   Rastgele oturum anahtarı olmadan API kullanılamaz.
 - Pencere kapanınca arka plan sunucusu ve alt işlemleri durdurulur.
 - Temel PDF araçları çevrimdışı çalışır. AI ve web sayfası dönüşümü internet kullanır.
+
+## Güncelleme ve tema (0.4.0)
+
+Uygulama açılışta, en çok 6 saatte bir, GitHub'daki yeni sürümleri denetler.
+Yeni sürüm varsa üst şeritte “Neler yeni?” ve “İndir ve kur” görünür. İndirilen
+kurulumun boyutu ve SHA-256 özeti `SHA256SUMS.txt` ile doğrulanır; ardından
+“Şimdi kur” uygulamayı kapatır, yeni sürümü kurar ve yeniden açar.
+Otomatik denetim Ayarlar > Güncellemeler bölümünden kapatılabilir; aynı yerden
+elle de denetlenebilir.
+
+Kurulum dosyası elle çalıştırıldığında da kurulu sürümü bulur, önce kaldırır, sonra
+yenisini kurar. Uygulama açıksa kapatılması istenir. 0.3.x sürümlerinde güncelleme
+düğmesi olmadığından 0.4.0 bir kez elle kurulur.
+
+Üst çubuktaki tema düğmesi açık/koyu tema arasında geçer. Seçim yapılmazsa
+Windows teması kullanılır; seçim pencere profilinde saklanır.
 
 ## Dosyalar ve ayarlar
 
@@ -40,7 +56,8 @@ araçlarla devam edersen değişmiş belge aktarılır.
 `%LOCALAPPDATA%\PDFAtolye` altında:
 
 - `data`: süreli yüklemeler ve çıktılar
-- `config.json`: isteğe bağlı AI anahtarı
+- `config.json`: isteğe bağlı AI anahtarı ve güncelleme ayarları
+- `updates`: indirilen ve doğrulanan kurulum dosyası
 - `webview`: pencere profili ve kaydedilen iş akışları
 - `desktop.log`: başlatma günlüğü
 - `desktop-port.txt`: aynı yerel adresi yeniden kullanmak için bağlantı noktası
@@ -79,7 +96,9 @@ klasörü EXE ile birlikte tutulmalıdır.
 
 GitHub `Build Windows Desktop` iş akışı paketi üretir; paketlenmiş EXE'yi
 yükle → döndür/DOCX/Markdown → indir döngüsünden geçirir; sessiz kurulum,
-kurulmuş EXE ve kaldırma adımlarını kontrol eder. Gerçek WebView2 penceresinde
+kurulmuş EXE ve kaldırma adımlarını kontrol eder. Yayımlanmış v0.3.1 üzerine
+yükseltmeyi ve yerel bir sürüm kaynağından indirme → SHA-256 → kurulum
+güncellemesini de uçtan uca sınar. Gerçek WebView2 penceresinde
 ana sayfanın yüklenmesi de otomatik sınanır. Bu kontroller gerçek
 pencerede dosya seçme/indirme etkileşim testinin yerini tutmaz.
 

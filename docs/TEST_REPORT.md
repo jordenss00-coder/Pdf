@@ -1,5 +1,29 @@
 # Test raporu — 1 Ekim 2026
 
+## Windows masaüstü 0.4.0 — güncelleme, yükseltmeli kurulum, tema
+
+- Bu bilgisayarda (Python 3.12.10) 37 Python testi geçti (4,276 saniye);
+  13 JavaScript modülünün sözdizimi geçerli.
+- Önceki bilgisayarda Edge ile `scripts/check-editor.cjs` ve sahte sürüm kaynağına
+  karşı `scripts/check-update-ui.cjs` geçti: bildirim şeridi, sürüm notları, tema
+  sabitleme ve sisteme dönüş, 87 MB indirme ilerlemesi, SHA-256 sonrası
+  "kurulmaya hazır" durumu, ayarlardaki otomatik denetim.
+- [Windows derlemesi](https://github.com/jordenss00-coder/Pdf/actions/runs/36903046073)
+  (`45a5f35`) başarılı. Inno Setup 6.7.1 ile kurulum betiği ilk kez derlendi.
+  - Paketli EXE işlem testi, kurulum, kurulu EXE ve kaldırma geçti.
+  - Yükseltme: yayımlanmış v0.3.1 kuruldu, ardından yeni kurulum çalıştırıldı.
+    Günlükte `Previous version removed: 0.3.1` ve `Installation process succeeded`
+    görüldü; kayıt defterinde sürüm 0.4.0, kullanıcı klasöründeki dosya korundu.
+  - Uygulama içinden güncelleme: kurulu EXE, yerel kaynaktan "v99.0.0" olarak
+    sunulan kurulumu indirdi, SHA-256 ile doğruladı ve sessiz kurulumu başlattı.
+    Kurulum 0.4.0'ı kaldırıp yeniden kurdu ve başarıyla bitti.
+  - Gerçek WebView2 penceresi: 43 araç bağlantısı ve `install_update` köprüsü var.
+
+Doğrulanmayanlar: kurulum başladığında uygulama zaten kapanmıştı; kurulumun açık
+uygulamayı 90 saniye bekleme yolu çalışmadı. Gerçek pencerede "Şimdi kur" düğmesi
+ve pencerenin onaysız kapanması elle denenmedi. Tema seçimi `localStorage` içinde
+tutulduğundan port değişirse sistem temasına döner.
+
 ## Windows masaüstü 0.3.1 — kullanım kolaylığı
 
 Kullanıcının paylaştığı 55 saniyelik kayıt yerelde incelendi. Kayıt ve kullanıcı

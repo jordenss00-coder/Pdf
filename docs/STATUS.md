@@ -21,12 +21,15 @@ uygulamasına dönüştürmek. Araç kapsamı ve seç → işle → indir akış
 
 ## Bu geliştirme
 
-### Devam ediyor: 0.4.0 — güncelleme, yükseltmeli kurulum, karanlık tema
+### Güncelleme, yükseltmeli kurulum, karanlık tema — 0.4.0
 
-`wip/0.4.0-updater` dalında. Uygulama içi güncelleme, eski sürümü kaldırıp kuran
-kurulum ve tema seçimi kodlandı; yerel testler geçti. Kurulum betiği henüz GitHub'da
-derlenip sınanmadı. Ayrıntılar, kalan işler ve yeni bilgisayarda devam etme adımları:
-[WIP-0.4.0.md](WIP-0.4.0.md).
+Uygulama yeni sürümü GitHub'dan denetliyor, indirip SHA-256 ile doğruluyor ve kuruyor.
+Kurulum dosyası eski sürümü önce kaldırıp sonra kuruyor; kullanıcı verisi korunuyor.
+Açık/koyu tema düğmesi ve görsel iyileştirmeler eklendi. 37 Python testi ve 13 JavaScript
+modülü geçti. GitHub Windows derlemesinde Inno kurulum betiği ilk kez derlendi;
+v0.3.1 üzerine yükseltme ve yerel sürüm kaynağından uçtan uca güncelleme testleri geçti
+([derleme](https://github.com/jordenss00-coder/Pdf/actions/runs/36903046073), test edilen kod: `45a5f35`).
+`main`'e alındı; v0.4.0 ön sürümü henüz yayımlanmadı.
 
 ### Kullanım kolaylığı — 0.3.1
 
@@ -86,7 +89,9 @@ GitHub Actions'ın Linux ortamında derlenip çalıştırıldı.
 ## Kalanlar / yapılamayanlar
 
 - Canlı web yayını ertelendi; masaüstü kullanımı için gerekli değil.
-- Windows kod imzalama ve otomatik güncelleme sonraki sürüme bırakıldı.
+- Windows kod imzalama sonraki sürüme bırakıldı.
+- Güncellemede "uygulama açıkken kurulumun beklemesi" yolu ve gerçek pencerede
+  "Şimdi kur" düğmesi elle sınanmadı; CI'da uygulama kurulum başlamadan kapanmıştı.
 - Herkese açık anonim hizmet hazır değil; bu sürüm parola korumalı küçük ekip içindir.
 - Sunucuda HTML/URL ve AI kapalı; izole tarayıcı ve kullanıcı bazlı API yönetimi gerekir.
 - İmza daveti, uzak mobil tarama, bulut depolama entegrasyonu yok.
