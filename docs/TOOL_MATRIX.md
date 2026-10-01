@@ -11,12 +11,12 @@ Referans: [iLovePDF](https://www.ilovepdf.com/), incelendi: 1 Ekim 2026.
 | Extract pages | Sayfa Çıkar; test edildi |
 | Organize PDF | Sıralama/döndürme/kopyalama/boş sayfa mevcut |
 | Compress PDF | Test edildi; kayıplı sıkıştırma kaliteyi etkileyebilir |
-| PDF to Word | pdf2docx veya Windows Word; karmaşık yerleşim testi bekliyor |
-| PDF to PowerPoint | Görsel veya metin kutulu slayt; özgün yapıyı garanti etmez |
-| PDF to Excel | Algılanan tablolar; yoksa metin satırları |
-| Word to PDF | Office/LibreOffice gerekir |
-| PowerPoint to PDF | Office/LibreOffice gerekir |
-| Excel to PDF | Office/LibreOffice gerekir |
+| PDF to Word | pdf2docx örneği test edildi; karmaşık yerleşim testi bekliyor |
+| PDF to PowerPoint | Görsel slayt örneği test edildi; özgün yapıyı garanti etmez |
+| PDF to Excel | Metin aktarımı test edildi; formül çalıştırma engellendi |
+| Word to PDF | LibreOffice gerçek dönüşümü CI'da geçti |
+| PowerPoint to PDF | LibreOffice gerçek dönüşümü CI'da geçti |
+| Excel to PDF | LibreOffice gerçek dönüşümü CI'da geçti |
 | Edit PDF | Metin/görsel/şekil/not/bağlantı ve mevcut metin düzeltme |
 | PDF to JPG | JPG/PNG sayfa görüntüsü ve gömülü görsel çıkarma |
 | JPG to PDF | Görsel sıralama/yön/kenar boşluğu |
@@ -30,11 +30,11 @@ Referans: [iLovePDF](https://www.ilovepdf.com/), incelendi: 1 Ekim 2026.
 | Repair PDF | PyMuPDF/pikepdf ile kurtarma; tüm hasarlar onarılamaz |
 | Page numbers | Temel araç ve tarayıcı iş akışı test edildi |
 | Scan to PDF | Aynı cihazın kamerası/fotoğrafı; uzak telefon eşleştirmesi yok |
-| OCR PDF | Türkçe/İngilizce dil verileri mevcut; kalite corpus testi bekliyor |
-| Compare PDF | Yan yana fark belgesi; taranmış belge testi genişletilmeli |
-| Redact PDF | Alan/desen karartma; geri çıkarılamama testi genişletilmeli |
+| OCR PDF | Raster sayfada İngilizce tanıma geçti; Türkçe kalite corpus testi bekliyor |
+| Compare PDF | Aynı belgede sıfır fark testi geçti; taranmış belge testi genişletilmeli |
+| Redact PDF | Örnek metnin çıkarılan metin/akışlardan kaldırılması geçti; corpus genişletilmeli |
 | Crop PDF | Seçim ve otomatik kenar |
-| PDF Forms | Alan algılama ve etkileşimli alanlar; karmaşık form testi bekliyor |
+| PDF Forms | Alan oluşturma/değer/düzleştirme geçti; karmaşık form testi bekliyor |
 | AI Summarizer | Yerelde API/model gerekir; gerçek çağrı yapılmadı; sunucuda kapalı |
 | Translate PDF | Yerelde API/model gerekir; yerleşim kusursuzluğu garanti edilmez |
 | PDF to Markdown | Yeni: başlık/metin/tablo/bağlantı; heuristik çıkarım |

@@ -30,9 +30,11 @@ uygulamasına dönüştürmek. Araç kapsamı ve seç → işle → indir akış
 - Şifre izinleri ve temel araçlarda dosya kilidi hataları düzeltildi.
 - 22 otomatik test geçti; tarayıcıda iki adımlı iş akışı sonucu doğrulandı.
 
-GitHub'a ilk kaynak gönderimi tamamlandı (`e3e3023`). İlk CI'da Linux testleri
-ve Docker derleme/sağlık/font kontrolleri geçti. Genişletilen 22 test ve gerçek
-LibreOffice dönüşüm kontrolü sonraki CI koşusunda doğrulanıyor.
+GitHub'a kaynak gönderimi tamamlandı. Son kod sürümü: `b697bbc`.
+[Son CI koşusu](https://github.com/jordenss00-coder/Pdf/actions/runs/36848912997):
+**başarılı**. Windows ve Linux'ta 22 test, JavaScript kontrolleri, Docker derleme,
+sağlık kontrolü, Türkçe fontlar ve container içinde gerçek Word/Excel/PowerPoint → PDF
+dönüşümleri geçti. Sonraki yalnızca belge commit'leri bu kod sürümünü değiştirmez.
 
 ## Takip belgeleri
 
@@ -44,8 +46,8 @@ LibreOffice dönüşüm kontrolü sonraki CI koşusunda doğrulanıyor.
 
 ## Yayın durumu
 
-Canlı URL henüz yok. Sunucu/alan adı seçimi bekleniyor. Docker çalıştırma
-bu makinede Docker bulunmadığı için GitHub Actions üzerinde doğrulanıyor.
+Canlı URL henüz yok. Sunucu/alan adı seçimi bekleniyor. Docker bu makinede
+bulunmadığından GitHub Actions'ın Linux ortamında derlenip çalıştırıldı.
 
 ## Kalanlar / yapılamayanlar
 
@@ -53,5 +55,6 @@ bu makinede Docker bulunmadığı için GitHub Actions üzerinde doğrulanıyor.
 - Herkese açık anonim hizmet hazır değil; bu sürüm parola korumalı küçük ekip içindir.
 - Sunucuda HTML/URL ve AI kapalı; izole tarayıcı ve kullanıcı bazlı API yönetimi gerekir.
 - İmza daveti, uzak mobil tarama, bulut depolama entegrasyonu yok.
-- PDF/A, OCR, Office ve karmaşık formlarda geniş kalite testleri bekliyor.
+- OCR, Office ve formlarda temel örnekler geçti; geniş kalite corpus testi bekliyor.
+- PDF/A bağımsız doğrulaması yapılmadı.
 - AI anahtarı/modeli ve imza sertifikası sağlanmadığından gerçek sağlayıcı/imza testi yapılmadı.

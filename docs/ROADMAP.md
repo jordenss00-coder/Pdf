@@ -24,7 +24,7 @@ Kabul: her kartın çalışan aracı ya da açık bir kullanılabilirlik açıkl
 ## 3 — Canlı yayın ve daha geniş kullanım
 
 - [ ] Sunucu ve alan adı belirleme, HTTPS kurulumu
-- [ ] Linux imajını çalıştırma; LibreOffice, OCR, yazı tipleri için entegrasyon testi
+- [x] Linux imajını CI'da çalıştırma; gerçek LibreOffice dönüşümü/font testi, Linux OCR örneği
 - [ ] Yedekleme politikası (belgeler geçicidir), disk izleme ve yük testi
 - [ ] Anonim herkese açık hizmet için kullanıcı başına hız/kota, izole dönüştürücü,
   ağ çıkış politikası, dayanıklı kuyruk ve ayrı depolama

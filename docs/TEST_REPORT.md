@@ -26,7 +26,17 @@ karşılaştırma başarısızdı. Görsel değer doğruydu; test boşluk normal
 biçimde düzeltildi ve tüm 22 test geçti. `pip check`: bozuk bağımlılık bulunmadı.
 
 İlk [GitHub CI koşusu](https://github.com/jordenss00-coder/Pdf/actions/runs/36848588991)
-Linux testleri ve Docker derleme/sağlık/font kontrollerini geçti. Son CI durumu STATUS'tadır.
+Windows/Linux testleri ve Docker derleme/sağlık/font kontrollerini geçti.
+
+Son [GitHub CI koşusu](https://github.com/jordenss00-coder/Pdf/actions/runs/36848912997),
+kod sürümü `b697bbc`: **tüm işler başarılı**.
+
+- Windows + Python 3.12: 22 test ve 11 JavaScript modül kontrolü.
+- Linux + Python 3.12: 22 test ve 11 JavaScript modül kontrolü.
+- Docker imajı derlendi; HTTP sağlık kontrolü geçti.
+- LibreOffice ile örnek DOCX, XLSX, PPTX dosyaları PDF'e dönüştürüldü;
+  çıkan PDF'lerin sayfa sayısı ve metni doğrulandı.
+- Linux fontunda `ğşıİçöü` karakterlerinin varlığı doğrulandı.
 
 `node scripts/check-js.mjs`: **11 modül** sözdizimi kontrolünü geçti.
 
@@ -37,6 +47,8 @@ Ayrı yerel önizleme ve `test-results/ui-data` kullanıldı.
 - Ana sayfa: 43 araç, konsolda hata yok.
 - PDF'ten dönüştür filtresi diğer kategorileri gizledi.
 - İş akışı kaydı göründü.
+- Parola korumalı sunucu sürümünde giriş ekranı, başarılı giriş,
+  sunucuda işleme/saklama açıklaması ve kapalı araç etiketleri doğrulandı.
 - Örnek PDF, numarala → sıkıştır akışında işlendi.
 - Sonuç: 1 sayfalık `sample_numarali_sikistirilmis.pdf`, indir bağlantısı ve önizleme;
   numaralanmış ara çıktı yaklaşık 34 KB, sıkıştırılmış çıktı yaklaşık 22 KB.
@@ -44,8 +56,7 @@ Ayrı yerel önizleme ve `test-results/ui-data` kullanıldı.
 
 ## Doğrulanmayanlar
 
-- Yerel makinede Docker yok; canlı sunucu/HTTPS kurulmadı.
-- Uzak CI sonuçları STATUS dosyasında takip edilir.
+- Docker GitHub'da doğrulandı; canlı sunucu/HTTPS kurulmadı.
 - Her aracın tüm seçenekleri, mobil kamera, PFX imza ve karmaşık belge kalitesi doğrulanmadı.
 - Ücretli AI çağrısı yapılmadı; model sağlayıcı hesabından seçilmeli.
 - PDF/A bağımsız doğrulayıcıyla sınanmadı.

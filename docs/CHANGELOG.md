@@ -21,3 +21,6 @@
 - OCR, Office dışa aktarımı, görsel dönüşümü, form ve karartma içerik testleri eklendi.
 
 Doğrulama ve yayın durumları TEST_REPORT ve STATUS belgelerindedir.
+
+Son doğrulama: Windows/Linux'ta 22 test, 11 JavaScript modülü, Docker ve gerçek
+LibreOffice dönüşümleri başarılı. Canlı yayın sunucu/alan adı bekliyor.
