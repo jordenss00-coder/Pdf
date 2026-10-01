@@ -165,7 +165,7 @@ function homeView() {
     h("a.btn", { href: "#/workflows" }, icon("workflow"), "İş akışı oluştur"),
     ["merge", "split", "compress", "pdf_to_word", "edit", "sign"].map((id) => h("a.btn", { href: `#/t/${id}` }, icon(byId[id].icon), byId[id].name))));
   app.append(h("div.wrap", h("div.hero", sheet), popular, filters, cats, empty,
-    h("footer.project-footer", h("span", `${TOOLS.length} araç · PDF Atölye 0.2.0 · Yükleme başına ${runtime.max_upload_mb || 50} MB`),
+    h("footer.project-footer", h("span", `${TOOLS.length} araç · PDF Atölye ${runtime.version || ""} · Yükleme başına ${runtime.max_upload_mb || 50} MB`),
       h("a", { href: "https://github.com/jordenss00-coder/Pdf", target: "_blank", rel: "noopener" }, "GitHub · Kurulum ve gelişim raporları"))));
   applySearch();
 }
@@ -393,7 +393,7 @@ function resultView(t, res, back) {
   if (r.expiresAt) main.append(h("p.hint", `Geçici dosya ${new Date(r.expiresAt * 1000).toLocaleString("tr-TR")} tarihine kadar saklanır. Kalıcı kopya için indir.`));
   main.append(h("div.result-file",
     h("a.btn.primary.big", { href: api.downloadUrl(r.id), download: r.name }, icon("download"), "İndir"),
-    r.kind === "pdf" ? h("a.btn.big", { href: api.downloadUrl(r.id, true), target: "_blank", rel: "noopener" }, icon("external-link"), "Tarayıcıda aç") : null,
+    r.kind === "pdf" && !runtime.desktop ? h("a.btn.big", { href: api.downloadUrl(r.id, true), target: "_blank", rel: "noopener" }, icon("external-link"), "Tarayıcıda aç") : null,
     h("div.meta", h("b", r.name), h("br"), [fmtBytes(r.size), r.pageCount ? `${r.pageCount} sayfa` : "", extra.files ? `${extra.files} dosya (zip)` : ""].filter(Boolean).join(" · "))));
 
   if (extra.warning) main.append(h("div.note.warn", extra.warning));

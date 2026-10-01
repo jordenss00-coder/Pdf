@@ -10,3 +10,6 @@ config.json
 htmlcov/
 test-results/
 *.log
+build/
+dist/
+release/

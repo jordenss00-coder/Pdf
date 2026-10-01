@@ -15,7 +15,7 @@ from pathlib import Path
 import pymupdf
 from fastapi import Body, FastAPI, File, HTTPException, UploadFile, Request
 from pydantic import BaseModel, Field
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import backends, store
@@ -29,6 +29,7 @@ from .util import UserError, zip_files
 from . import jobs
 from .settings import settings
 from .access import RequestGuard, COOKIE, SESSION_SECONDS, issue_session, owner
+from .version import VERSION
 
 STATIC = store.ROOT / "static"
 _slots = None
@@ -55,7 +56,7 @@ async def lifespan(app: FastAPI):
             pass
 
 
-app = FastAPI(title="PDF Atölye", version="0.2.0", lifespan=lifespan,
+app = FastAPI(title="PDF Atölye", version=VERSION, lifespan=lifespan,
               docs_url=None if settings.hosted else "/docs", redoc_url=None,
               openapi_url=None if settings.hosted else "/openapi.json")
 app.add_middleware(RequestGuard)
@@ -63,12 +64,21 @@ app.add_middleware(RequestGuard)
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "version": "0.2.0"}
+    return {"status": "ok", "version": VERSION}
+
+
+@app.get("/desktop/{token}")
+def desktop_session(token: str):
+    if not settings.desktop_token or not secrets.compare_digest(token, settings.desktop_token):
+        raise HTTPException(404)
+    response = RedirectResponse("/", status_code=303, headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
+    response.set_cookie("pdf_desktop", token, httponly=True, samesite="strict", path="/")
+    return response
 
 
 @app.get("/api/runtime")
 def runtime():
-    return {"mode": settings.mode, "login_required": settings.hosted,
+    return {"mode": settings.mode, "version": VERSION, "desktop": bool(settings.desktop_token), "login_required": settings.hosted,
             "max_upload_mb": settings.max_upload_mb, "max_files": settings.max_files,
             "retention_hours": settings.retention_hours, "max_pages": settings.max_pages}
 

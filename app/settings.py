@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parent.parent
 @dataclass(frozen=True)
 class Settings:
     mode: str = os.getenv("PDF_MODE", "local")
+    desktop_token: str = os.getenv("PDF_DESKTOP_TOKEN", "")
     hosts: tuple = tuple(x.strip() for x in os.getenv("PDF_ALLOWED_HOSTS", "127.0.0.1,localhost,[::1]").split(",") if x.strip())
     secret: str = os.getenv("PDF_SESSION_SECRET", "")
     access_password: str = os.getenv("PDF_ACCESS_PASSWORD", "")

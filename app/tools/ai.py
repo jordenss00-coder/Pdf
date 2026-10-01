@@ -6,6 +6,7 @@ import html
 import json
 import os
 import re
+from pathlib import Path
 
 import pymupdf
 
@@ -15,7 +16,7 @@ from . import tool
 from ..settings import settings
 
 MODEL = os.getenv("ANTHROPIC_MODEL", "")
-CONFIG = store.ROOT / "config.json"
+CONFIG = Path(os.getenv("PDF_CONFIG_FILE", str(store.ROOT / "config.json")))
 
 
 # ---------------- ayarlar ----------------

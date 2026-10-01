@@ -284,6 +284,19 @@ class AppTests(unittest.TestCase):
         self.assertIsNotNone(access.session_owner(session))
         self.assertIsNone(access.session_owner(session + "x"))
 
+    def test_desktop_requires_private_token(self):
+        desktop_settings = replace(settings, mode="local", desktop_token="desktop-test-token")
+        with patch.object(access, "settings", desktop_settings), patch.object(main, "settings", desktop_settings):
+            self.assertEqual(self.client.get("/api/runtime").status_code, 403)
+            self.assertEqual(self.client.get("/desktop/wrong").status_code, 404)
+            response = self.client.get("/desktop/desktop-test-token")
+            self.assertEqual(response.status_code, 200)
+            runtime = self.client.get("/api/runtime")
+            self.assertEqual(runtime.status_code, 200)
+            self.assertTrue(runtime.json()["desktop"])
+            self.assertFalse(runtime.json()["login_required"])
+            self.assertEqual(self.client.get("/api/health", headers={"X-PDF-Desktop": "wrong"}).status_code, 403)
+
 
 if __name__ == "__main__":
     unittest.main()

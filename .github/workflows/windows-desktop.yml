@@ -1,0 +1,75 @@
+name: Build Windows Desktop
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'desktop.py'
+      - 'desktop.spec'
+      - 'app/**'
+      - 'static/**'
+      - 'requirements*.txt'
+      - 'deploy/windows-installer.iss'
+      - 'scripts/build-windows.ps1'
+      - '.github/workflows/windows-desktop.yml'
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements-desktop.txt -r requirements-dev.txt
+      - run: python -m unittest discover -s tests -v
+      - name: Ensure installer compiler
+        shell: pwsh
+        run: |
+          if (-not (Test-Path 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe')) {
+            choco install innosetup --yes --no-progress
+          }
+      - name: Build executable and installer
+        shell: pwsh
+        run: ./scripts/build-windows.ps1
+      - name: Test packaged executable without Python
+        shell: pwsh
+        run: |
+          $env:PDF_DESKTOP_HOME = Join-Path $env:RUNNER_TEMP 'pdf-desktop-smoke'
+          $report = Join-Path $env:RUNNER_TEMP 'desktop-smoke.json'
+          $process = Start-Process -FilePath dist/PDF-Atolye/PDF-Atolye.exe -ArgumentList @('--smoke-test', $report) -PassThru -WindowStyle Hidden
+          if (-not $process.WaitForExit(180000)) { Stop-Process -Id $process.Id -Force; throw 'Desktop smoke test timed out' }
+          if ($process.ExitCode -ne 0) { Get-Content $report -ErrorAction SilentlyContinue; Get-Content "$env:PDF_DESKTOP_HOME/desktop.log" -ErrorAction SilentlyContinue; throw 'Desktop smoke test failed' }
+          $result = Get-Content $report | ConvertFrom-Json
+          if ($result.status -ne 'passed') { throw 'Missing desktop smoke result' }
+          Copy-Item $report release/desktop-smoke.json
+      - name: Test installer and installed executable
+        shell: pwsh
+        run: |
+          $install = Join-Path $env:RUNNER_TEMP 'PDFAtolyeInstalled'
+          $setup = Start-Process release/PDF-Atolye-Setup.exe -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$install") -PassThru -Wait -WindowStyle Hidden
+          if ($setup.ExitCode -ne 0) { throw 'Installation failed' }
+          $report = Join-Path $env:RUNNER_TEMP 'installed-smoke.json'
+          $process = Start-Process "$install/PDF-Atolye.exe" -ArgumentList @('--smoke-test', $report) -PassThru -WindowStyle Hidden
+          if (-not $process.WaitForExit(180000)) { Stop-Process -Id $process.Id -Force; throw 'Installed test timed out' }
+          if ($process.ExitCode -ne 0) { Get-Content $report -ErrorAction SilentlyContinue; throw 'Installed executable failed' }
+          Copy-Item $report release/installed-smoke.json
+          $uninstall = Start-Process "$install/unins000.exe" -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART') -PassThru -Wait -WindowStyle Hidden
+          if ($uninstall.ExitCode -ne 0) { throw 'Uninstall failed' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PDF-Atolye-Windows-x64
+          path: release/*
+          retention-days: 14
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-diagnostics
+          path: |
+            build/PDF-Atolye/warn-*.txt
+            ${{ runner.temp }}/pdf-desktop-smoke/*.log
+            ${{ runner.temp }}/*smoke.json

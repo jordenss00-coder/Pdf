@@ -1,5 +1,15 @@
 # Değişiklik günlüğü
 
+## 0.3.0 — Windows masaüstü (hazırlanıyor)
+
+- pywebview/WebView2 ile kendi penceresinde çalışan masaüstü başlatıcısı.
+- Gizli arka plan motoru; kapanışta alt süreçlerin durdurulması.
+- Masaüstü API'sine oturum anahtarıyla erişim; sabit olmayan özel token.
+- Ayar/veri/profil dosyaları kullanıcı hesabında; kurulum klasörüne yazılmaz.
+- Paketli EXE'de PDF worker işlemleri için ayrı giriş noktası.
+- PyInstaller klasör paketi, Inno Setup kullanıcı kurulumu/kısayol/kaldırma.
+- GitHub'da EXE, kurulum, paketli işlem ve kaldırma testleri.
+
 ## 0.2.0 — 1 Ekim 2026
 
 - Yerel ve parola korumalı sunucu modu, imzalı HttpOnly/SameSite oturum çerezi.

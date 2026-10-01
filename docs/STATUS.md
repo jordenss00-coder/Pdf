@@ -21,6 +21,15 @@ uygulamasına dönüştürmek. Araç kapsamı ve seç → işle → indir akış
 
 ## Bu geliştirme
 
+### Yeni yön: Windows masaüstü — 0.3.0
+
+Kullanıcı tercihiyle öncelik Windows uygulamasına geçti; canlı site yayını ertelendi.
+Masaüstü başlatıcısı, özel yerel API erişimi, kullanıcı profiline veri/ayar
+konumu, EXE paketleme, Inno Setup kurulumu ve GitHub Windows derleme akışı eklendi.
+Kaynak sürümün motor testleri ve paketli EXE/kurulum kontrolleri devam ediyor.
+
+### Önceki web temeli — 0.2.0
+
 0.2.0 geliştirmesi yerelde tamamlandı:
 
 - Yerel/sunucu modu, parola girişi, oturuma özel dosyalar ve sınırlar.

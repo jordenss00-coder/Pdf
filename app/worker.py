@@ -34,10 +34,13 @@ def run_tool(name: str, entries: list[dict], options: dict, workdir: str | None 
             "workdir": str(ctx.workdir)}
 
 
-if __name__ == "__main__":
+def run_job_file(job: Path):
     import json
-    import sys
-    job = Path(sys.argv[1])
     payload = json.loads(job.read_text(encoding="utf-8"))
     result = run_tool(**payload)
     (job.parent / "response.json").write_text(json.dumps(result), encoding="utf-8")
+
+
+if __name__ == "__main__":
+    import sys
+    run_job_file(Path(sys.argv[1]))

@@ -13,8 +13,10 @@ def execute(tool, entries, options, workdir):
     request = workdir / "request.json"
     request.write_text(json.dumps({"name": tool, "entries": entries, "options": options,
                                    "workdir": str(workdir)}), encoding="utf-8")
-    proc = subprocess.Popen([sys.executable, "-m", "app.worker", str(request)], cwd=ROOT,
+    command = [sys.executable, "--worker", str(request)] if getattr(sys, "frozen", False) else [sys.executable, "-m", "app.worker", str(request)]
+    proc = subprocess.Popen(command, cwd=ROOT,
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
                             start_new_session=os.name != "nt")
     try:
         proc.wait(timeout=settings.job_timeout)
@@ -31,6 +33,6 @@ def execute(tool, entries, options, workdir):
             except ProcessLookupError:
                 pass
         elif proc.poll() is None:
-            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True)
+            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
             proc.kill()
         proc.wait()

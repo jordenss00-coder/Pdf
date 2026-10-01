@@ -58,6 +58,16 @@ class RequestGuard:
                 return await reject(403, "İstek uygulamanın kendi sayfasından gönderilmeli.")
         path = scope["path"]
         current_owner = "local"
+        if settings.desktop_token and path.startswith("/api/"):
+            from http.cookies import SimpleCookie
+            cookies = SimpleCookie()
+            try:
+                cookies.load(headers.get(b"cookie", b"").decode("latin1"))
+                token = headers.get(b"x-pdf-desktop", b"").decode("latin1") or (cookies["pdf_desktop"].value if "pdf_desktop" in cookies else "")
+            except Exception:
+                token = ""
+            if not secrets.compare_digest(token, settings.desktop_token):
+                return await reject(403, "Masaüstü uygulamasının kendi penceresini kullan.")
         if settings.hosted and path.startswith("/api/") and path not in ("/api/runtime", "/api/login", "/api/health"):
             from http.cookies import SimpleCookie
             cookies = SimpleCookie()

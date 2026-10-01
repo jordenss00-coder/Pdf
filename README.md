@@ -1,5 +1,8 @@
 # PDF Atölye
 
+**Windows masaüstü sürümü hazırlanıyor:** kendi penceresi, masaüstü kısayolu,
+Python gerektirmeyen EXE ve kurulum paketi. [Windows rehberi](docs/WINDOWS.md).
+
 Türkçe PDF araçları: birleştirme, bölme, sıkıştırma, düzenleme, imza, dönüşüm,
 OCR, formlar, karartma ve karşılaştırma. **43 araç kartı** ve kaydedilebilir iş akışları.
 FastAPI + PyMuPDF; arayüz için derleme gerekmez.
