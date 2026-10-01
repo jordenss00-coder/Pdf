@@ -10,4 +10,3 @@ config.json
 htmlcov/
 test-results/
 *.log
-

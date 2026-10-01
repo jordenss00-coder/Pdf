@@ -178,4 +178,3 @@ def flatten(ctx):
         paths.append(save_pdf(doc, ctx.out(f"{stem(e.name)}_duzlestirilmis.pdf")))
     ctx.result_name = "duzlestirilmis.zip"
     return paths
-

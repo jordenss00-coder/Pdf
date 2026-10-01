@@ -205,6 +205,78 @@ class AppTests(unittest.TestCase):
             with self.assertRaisesRegex(UserError, "saniye"):
                 jobs.execute("rotate", [], {}, folder)
 
+    def test_redaction_removes_text_and_find_replace(self):
+        entry = store.add_bytes(pdf_bytes(), "content.pdf")
+        paths, _ = run("redact", [entry], {"terms": ["First paragraph"]})
+        with pymupdf.open(paths[0]) as doc:
+            text = "".join(p.get_text() for p in doc)
+            self.assertNotIn("First paragraph", text)
+            self.assertIn("Second paragraph", text)
+            for i in range(1, doc.xref_length()):
+                if doc.xref_is_stream(i):
+                    self.assertNotIn(b"First paragraph", doc.xref_stream(i))
+        paths, ctx = run("find_replace", [entry], {"find": "First", "replace": "New"})
+        self.assertEqual(ctx.extra["replaced"], 1)
+        with pymupdf.open(paths[0]) as doc:
+            self.assertIn("New", doc[0].get_text())
+            self.assertNotIn("First", doc[0].get_text())
+
+    def test_forms_create_and_flatten(self):
+        entry = store.add_bytes(pdf_bytes(), "form.pdf")
+        paths, _ = run("form", [entry], {"new_fields": [{"name": "name", "type": "text", "page": 0,
+            "rect": {"x": 72, "y": 200, "w": 160, "h": 30}, "value": "Example User"}]})
+        with pymupdf.open(paths[0]) as doc:
+            self.assertEqual(next(doc[0].widgets()).field_value, "Example User")
+        form_entry = store.add_path(paths[0], move=False)
+        paths, _ = run("form", [form_entry], {"flatten": True})
+        with pymupdf.open(paths[0]) as doc:
+            self.assertFalse(list(doc[0].widgets() or []))
+            self.assertIn("Example User", " ".join(doc[0].get_text().split()))
+
+    def test_office_exports_and_formula_text(self):
+        from openpyxl import load_workbook
+        from pptx import Presentation
+        from docx import Document
+        with pymupdf.open() as doc:
+            doc.new_page().insert_text((72, 72), "=1+1")
+            entry = store.add_bytes(doc.tobytes(), "formula.pdf")
+        paths, _ = run("pdf_to_excel", [entry], {})
+        wb = load_workbook(paths[0], data_only=False)
+        cell = wb["Metin"]["A1"]
+        self.assertEqual(cell.value, "=1+1")
+        self.assertEqual(cell.data_type, "s")
+        wb.close()
+        entry = store.add_bytes(pdf_bytes(), "exports.pdf")
+        paths, _ = run("pdf_to_ppt", [entry], {"mode": "image"})
+        self.assertEqual(len(Presentation(paths[0]).slides), 2)
+        paths, _ = run("pdf_to_word", [entry], {})
+        self.assertIn("First paragraph", "\n".join(p.text for p in Document(paths[0]).paragraphs))
+
+    def test_ocr_rasterized_page(self):
+        with pymupdf.open(stream=pdf_bytes()) as source:
+            pixels = source[0].get_pixmap(dpi=150)
+        with pymupdf.open() as scan:
+            page = scan.new_page()
+            page.insert_image(page.rect, pixmap=pixels)
+            entry = store.add_bytes(scan.tobytes(), "scan.pdf")
+        paths, ctx = run("ocr", [entry], {"language": "eng", "dpi": 150})
+        self.assertGreater(ctx.extra["words"], 0)
+        with pymupdf.open(paths[0]) as doc:
+            self.assertIn("paragraph", doc[0].get_text().lower())
+
+    def test_image_round_trip_and_compare(self):
+        entry = store.add_bytes(pdf_bytes(), "images.pdf")
+        paths, _ = run("pdf_to_images", [entry], {"format": "png", "dpi": 72, "pages": "1"})
+        self.assertEqual(len(paths), 1)
+        image = store.add_path(paths[0], move=False)
+        paths, _ = run("images_to_pdf", [image], {})
+        with pymupdf.open(paths[0]) as doc:
+            self.assertEqual(doc.page_count, 1)
+            self.assertTrue(doc[0].get_images())
+        _, ctx = run("compare", [entry, entry], {})
+        self.assertEqual(ctx.extra["compare"]["inserted"], 0)
+        self.assertEqual(ctx.extra["compare"]["deleted"], 0)
+
     def test_secret_validation_and_tampered_cookie(self):
         with self.assertRaises(RuntimeError):
             replace(settings, secret="short").validate()

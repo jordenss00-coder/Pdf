@@ -1,5 +1,9 @@
 name: Verify PDF Atolye
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore: ['docs/**', 'README.md']
+  pull_request:
+    paths-ignore: ['docs/**', 'README.md']
 permissions:
   contents: read
 jobs:
@@ -34,3 +38,5 @@ jobs:
           done
           curl --fail http://localhost:8765/api/health
           docker exec pdf-test python -c "from app.backends import capabilities; from app.fonts import get_font; c=capabilities(); assert c['libreoffice'] and c['ghostscript']; assert get_font().has_glyph(ord('ğ'))"
+      - name: Convert Office samples inside the Linux image
+        run: docker run --rm -v "$PWD/scripts:/app/scripts:ro" -e PYTHONPATH=/app pdf-atolye:test python scripts/check-container.py

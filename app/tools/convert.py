@@ -413,6 +413,8 @@ def pdf_to_excel(ctx):
                 for r, row in enumerate(rows):
                     for c, v in enumerate(row):
                         cell = ws.cell(start + r, c + 1, _cell(v, numbers))
+                        if isinstance(cell.value, str):
+                            cell.data_type = "s"  # PDF text must never become an Excel formula.
                         if r == 0:
                             cell.font = Font(bold=True)
                 if single:
@@ -425,7 +427,9 @@ def pdf_to_excel(ctx):
                     if not line.strip():
                         continue
                     for c, v in enumerate(re.split(r"\s{2,}|\t", line.strip())):
-                        ws.cell(r, c + 1, _cell(v, numbers))
+                        cell = ws.cell(r, c + 1, _cell(v, numbers))
+                        if isinstance(cell.value, str):
+                            cell.data_type = "s"
                     r += 1
             ctx.extra["warning"] = "Tablo bulunamadı; metin satırlar halinde aktarıldı."
         for ws in wb.worksheets:
@@ -522,4 +526,3 @@ def pdf_to_text(ctx):
         paths.append(p)
     ctx.result_name = "metin.zip"
     return paths
-

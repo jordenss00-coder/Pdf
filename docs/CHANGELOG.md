@@ -17,5 +17,7 @@
 - Sertifika yolu istemciden kabul edilmiyor; oturumun yüklediği dosya gerekiyor.
 - Doğrulanmamış sabit AI modeli/beta parametreleri kaldırıldı; model ortamdan seçiliyor.
 - PDF/A ve sıkıştırma açıklamaları gerçek kısıtları yansıtacak biçimde düzeltildi.
+- PDF'ten Excel'e aktarımda `=` ile başlayan metinlerin formül olarak çalışması engellendi.
+- OCR, Office dışa aktarımı, görsel dönüşümü, form ve karartma içerik testleri eklendi.
 
 Doğrulama ve yayın durumları TEST_REPORT ve STATUS belgelerindedir.

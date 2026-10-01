@@ -28,9 +28,11 @@ uygulamasına dönüştürmek. Araç kapsamı ve seç → işle → indir akış
 - Docker/Compose, Linux başlatıcı, LibreOffice/font desteği ve GitHub CI.
 - Markdown aracı, kategori filtreleri ve kaydedilebilir iş akışları.
 - Şifre izinleri ve temel araçlarda dosya kilidi hataları düzeltildi.
-- 17 otomatik test geçti; tarayıcıda iki adımlı iş akışı sonucu doğrulandı.
+- 22 otomatik test geçti; tarayıcıda iki adımlı iş akışı sonucu doğrulandı.
 
-GitHub'a ilk kaynak gönderimi ve uzak CI doğrulaması yürütülüyor.
+GitHub'a ilk kaynak gönderimi tamamlandı (`e3e3023`). İlk CI'da Linux testleri
+ve Docker derleme/sağlık/font kontrolleri geçti. Genişletilen 22 test ve gerçek
+LibreOffice dönüşüm kontrolü sonraki CI koşusunda doğrulanıyor.
 
 ## Takip belgeleri
 
@@ -43,7 +45,7 @@ GitHub'a ilk kaynak gönderimi ve uzak CI doğrulaması yürütülüyor.
 ## Yayın durumu
 
 Canlı URL henüz yok. Sunucu/alan adı seçimi bekleniyor. Docker çalıştırma
-bu makinede Docker bulunmadığı için ayrıca doğrulanmalı.
+bu makinede Docker bulunmadığı için GitHub Actions üzerinde doğrulanıyor.
 
 ## Kalanlar / yapılamayanlar
 

@@ -437,4 +437,3 @@ def form(ctx):
         raise UserError("Doldurulacak ya da eklenecek alan yok.")
     suffix = "doldurulmus" if values or flatten else "form"
     return save_pdf(doc, ctx.out(f"{stem(ctx.first.name)}_{suffix}.pdf"))
-

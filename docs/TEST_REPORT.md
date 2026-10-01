@@ -8,13 +8,25 @@ dönüşüm servisine gönderilmedi.
 
 ## Otomatik kontroller
 
-`python -m unittest discover -s tests -v`: **17 test geçti**, ilk koşu 3.880 saniye.
+`python -m unittest discover -s tests -v`: **22 test geçti**, son yerel koşu 3.673 saniye.
 
 Kapsam: giriş/çerez, başka oturumun belgesine tüm API yollarından erişim,
 Host/Origin, Content-Length olmadan aşırı boyut, dosya sayısı/boyutu/sayfa/kota,
 sunucu ayarları/kapalı araçlar, sertifika yolu, silme/çıkış, yeniden başlatmada
 indeks, süreli silme, hata sonrası temizlik, zaman aşımı, değiştirilmiş çerez,
 yükle → döndür → indir, temel araçlar, şifre izinleri ve Markdown.
+
+Ek kontroller: PDF → DOCX/PPTX/XLSX, Excel formül metninin literal korunması,
+görsel → PDF ve PDF → PNG, raster sayfada İngilizce OCR, form oluşturma/düzleştirme,
+metin değiştirme, karartılan metnin çıktı metninden/akışından kaldırılması,
+aynı belgenin karşılaştırmasında sıfır fark.
+
+Ek testlerin ilk koşusunda form metnindeki kesintisiz boşluk nedeniyle tek
+karşılaştırma başarısızdı. Görsel değer doğruydu; test boşluk normalleştirecek
+biçimde düzeltildi ve tüm 22 test geçti. `pip check`: bozuk bağımlılık bulunmadı.
+
+İlk [GitHub CI koşusu](https://github.com/jordenss00-coder/Pdf/actions/runs/36848588991)
+Linux testleri ve Docker derleme/sağlık/font kontrollerini geçti. Son CI durumu STATUS'tadır.
 
 `node scripts/check-js.mjs`: **11 modül** sözdizimi kontrolünü geçti.
 

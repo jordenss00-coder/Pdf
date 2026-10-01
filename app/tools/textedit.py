@@ -279,4 +279,3 @@ def find_replace(ctx):
     ctx.extra["replaced"] = total
     ctx.result_name = "duzeltilmis.zip"
     return paths
-

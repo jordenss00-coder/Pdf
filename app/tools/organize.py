@@ -249,4 +249,3 @@ def reverse(ctx):
     doc = ctx.open_pdf(ctx.first)
     doc.select(list(range(doc.page_count - 1, -1, -1)))
     return save_pdf(doc, ctx.out(f"{stem(ctx.first.name)}_ters.pdf"))
-
