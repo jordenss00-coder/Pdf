@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 from fastapi.responses import FileResponse, JSONResponse, Response, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import backends, store
+from . import backends, store, updates
 from .fonts import available_families
 from .tools.ai import ai_configured, load_config, save_config
 from .tools.edit import redaction_regexes
@@ -40,6 +40,8 @@ async def lifespan(app: FastAPI):
     global _slots
     settings.validate()
     store.init()
+    if updates.supported():
+        await asyncio.to_thread(updates.cleanup_stale)
     _slots = asyncio.Semaphore(settings.max_jobs)
     async def sweep():
         while True:
@@ -79,6 +81,7 @@ def desktop_session(token: str):
 @app.get("/api/runtime")
 def runtime():
     return {"mode": settings.mode, "version": VERSION, "desktop": bool(settings.desktop_token), "login_required": settings.hosted,
+            "updates": updates.supported(),
             "max_upload_mb": settings.max_upload_mb, "max_files": settings.max_files,
             "retention_hours": settings.retention_hours, "max_pages": settings.max_pages}
 
@@ -174,6 +177,40 @@ def set_settings(body: dict = Body(...)):
             cfg.pop("anthropic_api_key", None)
     save_config(cfg)
     return get_settings()
+
+
+# ---------------- güncellemeler (yalnızca Windows masaüstü) ----------------
+
+def _updates_only():
+    if not updates.supported():
+        raise HTTPException(404, "Güncellemeler yalnızca Windows masaüstü uygulamasında kullanılabilir.")
+
+
+@app.get("/api/update")
+def update_status(auto: bool = False):
+    return updates.check(auto=auto)
+
+
+@app.post("/api/update/check")
+def update_check():
+    _updates_only()
+    return updates.check(force=True)
+
+
+@app.post("/api/update/download")
+def update_download():
+    _updates_only()
+    try:
+        return updates.start_download()
+    except updates.UpdateError as exc:
+        raise UserError(str(exc))
+
+
+@app.post("/api/update/auto")
+def update_auto(body: dict = Body(...)):
+    _updates_only()
+    updates.set_auto(bool(body.get("enabled")))
+    return updates.status()
 
 
 # ---------------- dosyalar ----------------

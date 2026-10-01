@@ -63,6 +63,12 @@ class AppTests(unittest.TestCase):
         self.assertFalse(caps["ai"])
         self.assertFalse(caps["browser"])
 
+    def test_updates_are_off_outside_desktop(self):
+        self.assertFalse(self.client.get("/api/runtime").json()["updates"])
+        self.assertFalse(self.client.get("/api/update?auto=true").json()["supported"])
+        for path in ("/api/update/check", "/api/update/download", "/api/update/auto"):
+            self.assertEqual(self.client.post(path, json={}).status_code, 404)
+
     def test_login_cookie_and_unauthorized(self):
         with TestClient(main.app, base_url="https://localhost") as other:
             self.assertEqual(other.get("/api/capabilities").status_code, 401)

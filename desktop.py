@@ -10,8 +10,13 @@ import secrets
 import socket
 import subprocess
 import sys
+import threading
 import time
 import urllib.request
+
+# The installer waits for this mutex to disappear before replacing files.
+APP_MUTEX = "PDFAtolyeDesktopApp"
+UPDATE_FLAGS = ("/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/UPDATE=1")
 
 
 def command(*args):
@@ -30,6 +35,7 @@ def configure(root):
     os.environ["PDF_MODE"] = "local"
     os.environ["PDF_DATA_DIR"] = str(root / "data")
     os.environ["PDF_CONFIG_FILE"] = str(root / "config.json")
+    os.environ["PDF_UPDATE_DIR"] = str(root / "updates")
     os.environ["PDF_ALLOWED_HOSTS"] = "127.0.0.1,localhost"
 
 
@@ -58,6 +64,61 @@ class SingleInstance:
 
     def close(self):
         self.file.close()
+
+
+def hold_app_mutex():
+    if os.name != "nt":
+        return None
+    import ctypes
+    from ctypes import wintypes
+    kernel32 = ctypes.windll.kernel32
+    kernel32.CreateMutexW.restype = wintypes.HANDLE
+    kernel32.CreateMutexW.argtypes = (ctypes.c_void_p, wintypes.BOOL, wintypes.LPCWSTR)
+    return kernel32.CreateMutexW(None, False, APP_MUTEX) or None
+
+
+def release_app_mutex(handle):
+    if handle:
+        import ctypes
+        from ctypes import wintypes
+        ctypes.windll.kernel32.CloseHandle(wintypes.HANDLE(handle))
+
+
+def start_installer(root, flags=UPDATE_FLAGS):
+    """Start the verified, pending setup outside this process tree; return its version."""
+    from app.updates import pending_installer
+    setup, version = pending_installer(root / "updates")
+    detached = getattr(subprocess, "DETACHED_PROCESS", 0) | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+    breakaway = getattr(subprocess, "CREATE_BREAKAWAY_FROM_JOB", 0)
+    args = dict(cwd=str(setup.parent), close_fds=True, stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        subprocess.Popen([str(setup), *flags], creationflags=detached | breakaway, **args)
+    except OSError:  # Job objects may forbid breakaway.
+        subprocess.Popen([str(setup), *flags], creationflags=detached, **args)
+    return version
+
+
+class DesktopApi:
+    """Functions the app page can call through window.pywebview.api."""
+    def __init__(self, root):
+        self._root = root
+        self._window = None
+
+    def install_update(self):
+        from app.updates import UpdateError
+        try:
+            version = start_installer(self._root)
+        except UpdateError as exc:
+            return {"ok": False, "error": str(exc)}
+        except OSError:
+            return {"ok": False, "error": "Kurulum başlatılamadı. Güncellemeyi yeniden indir."}
+        window = self._window
+        def close():
+            window.confirm_close = False  # destroy() otherwise asks the quit question
+            window.destroy()
+        threading.Timer(0.8, close).start()
+        return {"ok": True, "version": version}
 
 
 def choose_port(root):
@@ -142,10 +203,33 @@ def self_test(url, token):
         client.delete("/api/files").raise_for_status()
 
 
-def launch(smoke_report=None, ui_report=None):
+def update_test(url, token, root, report):
+    """Feed -> download -> SHA-256 check -> start the real setup silently, as the update button does."""
+    import httpx
+    with httpx.Client(base_url=url, headers={"X-PDF-Desktop": token}, timeout=60, trust_env=False) as client:
+        status = client.post("/api/update/check").json()
+        if not status.get("available"):
+            raise RuntimeError(f"Update was not offered: {status.get('error')}")
+        client.post("/api/update/download").raise_for_status()
+        deadline = time.monotonic() + 600
+        while True:
+            download = client.get("/api/update").json()["download"]
+            if download["state"] == "ready":
+                break
+            if download["state"] == "error" or time.monotonic() > deadline:
+                raise RuntimeError(download["error"] or "Update download timed out")
+            time.sleep(0.5)
+    log = Path(report).with_suffix(".setup.log")
+    version = start_installer(root, ("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", f"/LOG={log}"))
+    Path(report).write_text(json.dumps({"status": "passed", "version": version, "setup_log": str(log),
+                                        "checks": ["feed", "download", "sha256", "pending", "installer-started"]}), encoding="utf-8")
+
+
+def launch(smoke_report=None, ui_report=None, update_report=None):
     root = user_directory().resolve()
     configure(root)
     instance = SingleInstance(root)
+    mutex = hold_app_mutex()
     proc = None
     try:
         port = choose_port(root)
@@ -164,12 +248,17 @@ def launch(smoke_report=None, ui_report=None):
             self_test(url, token)
             Path(smoke_report).write_text(json.dumps({"status": "passed", "checks": ["private-server", "upload", "frozen-worker", "rotate", "docx", "markdown", "download", "delete"]}), encoding="utf-8")
             return
+        if update_report:
+            update_test(url, token, root, update_report)
+            return
         import webview
         webview.settings["ALLOW_DOWNLOADS"] = True
         webview.settings["ALLOW_FILE_URLS"] = False
-        window = webview.create_window("PDF Atölye", url + "/desktop/" + token,
+        api = DesktopApi(root)
+        window = webview.create_window("PDF Atölye", url + "/desktop/" + token, js_api=api,
                               width=1280, height=850, min_size=(800, 600), text_select=True,
                               confirm_close=not bool(ui_report), hidden=bool(ui_report))
+        api._window = window
         def check_window():
             result = {"status": "failed", "error": "Window content did not load"}
             try:
@@ -177,8 +266,9 @@ def launch(smoke_report=None, ui_report=None):
                 while time.monotonic() < deadline:
                     try:
                         title = window.evaluate_js("document.querySelector('h1')?.textContent || ''")
-                        if title and "PDF" in title:
-                            result = {"status": "passed", "engine": "edgechromium", "heading": title,
+                        bridge = window.evaluate_js("typeof window.pywebview?.api?.install_update")
+                        if title and "PDF" in title and bridge == "function":
+                            result = {"status": "passed", "engine": "edgechromium", "heading": title, "update_bridge": bridge,
                                       "tool_links": window.evaluate_js("document.querySelectorAll('a.tile').length")}
                             break
                     except Exception:
@@ -195,6 +285,7 @@ def launch(smoke_report=None, ui_report=None):
         if proc:
             stop_server(proc)
             atexit.unregister(stop_server)
+        release_app_mutex(mutex)
         instance.close()
 
 
@@ -204,6 +295,7 @@ def main():
     parser.add_argument("--serve-desktop", type=int)
     parser.add_argument("--smoke-test", metavar="REPORT_JSON")
     parser.add_argument("--ui-smoke-test", metavar="REPORT_JSON")
+    parser.add_argument("--update-smoke-test", metavar="REPORT_JSON")
     args = parser.parse_args()
     if args.worker:
         from app.worker import run_job_file
@@ -212,9 +304,9 @@ def main():
         serve(args.serve_desktop)
     else:
         try:
-            launch(args.smoke_test, args.ui_smoke_test)
+            launch(args.smoke_test, args.ui_smoke_test, args.update_smoke_test)
         except Exception as exc:
-            report = args.smoke_test or args.ui_smoke_test
+            report = args.smoke_test or args.ui_smoke_test or args.update_smoke_test
             if report:
                 Path(report).write_text(json.dumps({"status": "failed", "error": str(exc)}), encoding="utf-8")
             else:
