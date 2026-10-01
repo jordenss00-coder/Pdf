@@ -18,6 +18,10 @@
     sunulan kurulumu indirdi, SHA-256 ile doğruladı ve sessiz kurulumu başlattı.
     Kurulum 0.4.0'ı kaldırıp yeniden kurdu ve başarıyla bitti.
   - Gerçek WebView2 penceresi: 43 araç bağlantısı ve `install_update` köprüsü var.
+- `main` üzerindeki [Windows derlemesi](https://github.com/jordenss00-coder/Pdf/actions/runs/36904297251)
+  (`5fb7aa2`) aynı adımlarla geçti; v0.4.0 bu çıktıyla yayımlandı. Yayımlanan
+  dosyaların SHA-256 değerleri SHA256SUMS.txt ile eşleşti. Güncelleme kodu gerçek
+  GitHub kaynağında 0.3.1 için v0.4.0'ı seçti, 0.4.0 için yeni sürüm bulmadı.
 
 Doğrulanmayanlar: kurulum başladığında uygulama zaten kapanmıştı; kurulumun açık
 uygulamayı 90 saniye bekleme yolu çalışmadı. Gerçek pencerede "Şimdi kur" düğmesi

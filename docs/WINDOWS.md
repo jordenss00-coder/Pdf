@@ -2,7 +2,7 @@
 
 ## Kullanım
 
-[PDF-Atolye-Setup.exe dosyasını indir](https://github.com/jordenss00-coder/Pdf/releases/download/v0.3.1/PDF-Atolye-Setup.exe),
+[PDF-Atolye-Setup.exe dosyasını indir](https://github.com/jordenss00-coder/Pdf/releases/download/v0.4.0/PDF-Atolye-Setup.exe),
 çalıştır ve kurulumdan sonra Başlat menüsünden PDF Atölye'yi aç.
 Bu bir ön sürümdür; son durum STATUS ve TEST_REPORT'tadır.
 

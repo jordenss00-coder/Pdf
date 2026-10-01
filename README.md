@@ -1,9 +1,9 @@
 # PDF Atölye
 
-**Windows masaüstü ön sürümü hazır:** kendi penceresi, masaüstü kısayolu,
+**Windows masaüstü ön sürümü hazır:** kendi penceresi, masaüstü kısayolu, uygulama içi güncelleme,
 Python gerektirmeyen EXE ve kurulum paketi.
-[Kurulum dosyasını indir](https://github.com/jordenss00-coder/Pdf/releases/download/v0.3.1/PDF-Atolye-Setup.exe)
-· [Windows rehberi](docs/WINDOWS.md) · [Sürüm notları](docs/RELEASE-0.3.1.md).
+[Kurulum dosyasını indir](https://github.com/jordenss00-coder/Pdf/releases/download/v0.4.0/PDF-Atolye-Setup.exe)
+· [Windows rehberi](docs/WINDOWS.md) · [Sürüm notları](docs/RELEASE-0.4.0.md).
 
 Türkçe PDF araçları: birleştirme, bölme, sıkıştırma, düzenleme, imza, dönüşüm,
 OCR, formlar, karartma ve karşılaştırma. **43 araç kartı** ve kaydedilebilir iş akışları.

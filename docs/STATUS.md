@@ -29,7 +29,8 @@ Açık/koyu tema düğmesi ve görsel iyileştirmeler eklendi. 37 Python testi v
 modülü geçti. GitHub Windows derlemesinde Inno kurulum betiği ilk kez derlendi;
 v0.3.1 üzerine yükseltme ve yerel sürüm kaynağından uçtan uca güncelleme testleri geçti
 ([derleme](https://github.com/jordenss00-coder/Pdf/actions/runs/36903046073), test edilen kod: `45a5f35`).
-`main`'e alındı; v0.4.0 ön sürümü henüz yayımlanmadı.
+`main`'deki aynı derlemeyle (`5fb7aa2`) [0.4.0 Windows ön sürümü](https://github.com/jordenss00-coder/Pdf/releases/tag/v0.4.0)
+yayımlandı: kurulum EXE'si, ZIP ve SHA-256 dosyası.
 
 ### Kullanım kolaylığı — 0.3.1
 

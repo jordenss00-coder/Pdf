@@ -21,7 +21,7 @@ altyapısı korunur; canlı sunucu/alan adı işleri ertelenmiştir.
 - [x] Kurulumun eski sürümü algılayıp önce kaldırması (0.4.0)
 - [x] Karanlık tema seçimi ve görsel iyileştirmeler (0.4.0)
 - [x] CI'da v0.3.1 üzerine yükseltme ve uçtan uca güncelleme testleri (0.4.0)
-- [ ] v0.4.0 ön sürümünün yayımlanması
+- [x] v0.4.0 ön sürümünün yayımlanması
 - [ ] Gerçek pencerede "Şimdi kur" ve açık uygulamayı bekleme yolunun elle sınanması
 - [ ] Kod imzalama (sonraki sürüm)
 
