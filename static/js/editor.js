@@ -1,6 +1,6 @@
 // PDF editörü: sayfalar üzerinde nesne ekleme, mevcut metni düzeltme, form alanları,
 // karartma ve kırpma. Tüm koordinatlar PDF noktası (pt) cinsinden, görünür sayfaya göredir.
-import { h, icon, toast, pickFiles, readAsDataURL, debounce } from "./ui.js";
+import { h, icon, toast, pickFiles, readAsDataURL, debounce, dialog } from "./ui.js";
 import * as api from "./api.js";
 import { openSignature } from "./signature.js";
 
@@ -16,6 +16,7 @@ const PALETTES = {
 const DEFAULT_TOOL = { edit: "select", text: "textedit", sign: "select", redact: "redact", crop: "crop", form: "select", find: "select" };
 
 const TOOLDEF = {
+  hand: { icon: "hand", tip: "Sayfada gezin", key: "g" },
   select: { icon: "mouse-pointer-2", tip: "Seç ve taşı", key: "v" },
   textedit: { icon: "text-cursor", tip: "Mevcut metni düzelt", key: "e" },
   text: { icon: "type", tip: "Metin ekle", key: "t" },
@@ -42,6 +43,7 @@ const TOOLDEF = {
 };
 
 const HINTS = {
+  hand: "Sayfayı fareyle tutup sürükle. Ctrl + tekerlek ile yakınlaştır.",
   select: "Bir öğeye tıkla, sürükleyerek taşı, köşesinden boyutlandır. Delete ile sil.",
   textedit: "Düzeltmek istediğin satıra tıkla ve yaz. Satırı sürükleyerek de taşıyabilirsin.",
   text: "Metin eklemek istediğin yere tıkla.",
@@ -95,7 +97,7 @@ export default function mountEditor(root, ctx) {
   };
 
   // ---------------- DOM ----------------
-  const palette = PALETTES[mode] || [];
+  const palette = ["hand", ...(PALETTES[mode] || [])];
   const toolsEl = palette.length ? h("div.ed-tools", { role: "toolbar", "aria-label": "Düzenleme araçları", "aria-orientation": "vertical" }) : null;
   const hintEl = h("span.hint");
   const zoomEl = h("span.zoom");
@@ -108,9 +110,11 @@ export default function mountEditor(root, ctx) {
       h("button.icon-btn", { type: "button", title: "Geri al (Ctrl+Z)", "aria-label": "Geri al", onclick: () => undo() }, icon("undo-2")),
       h("button.icon-btn", { type: "button", title: "Yinele (Ctrl+Y)", "aria-label": "Yinele", onclick: () => redo() }, icon("redo-2")),
     ] : null,
-    hintEl);
+    h("button.btn.sm", { type: "button", onclick: showShortcuts }, icon("keyboard"), "Kısayollar"));
   const pagesEl = h("div.ed-pages");
-  const main = h("div.ed-main", bar, pagesEl);
+  const viewport = h("div.ed-viewport", { tabindex: 0, role: "region", "aria-label": "PDF görünümü" }, pagesEl);
+  const main = h("div.ed-main", bar, hintEl,
+    h("p.ed-navigation-help", "Ctrl + tekerlek: yakınlaştır · Ctrl + sürükle: gezin · Ctrl + 0: sığdır"), viewport);
   const ed = h("div.editor", toolsEl, main);
   if (!toolsEl) ed.style.gridTemplateColumns = "1fr";
   root.append(ed);
@@ -132,8 +136,8 @@ export default function mountEditor(root, ctx) {
     for (const k of palette) {
       if (k === "|") { toolsEl.append(h("hr")); continue; }
       const d = TOOLDEF[k];
-      const b = h("button", { type: "button", "aria-label": d.tip, "aria-pressed": String(!d.action && S.tool === k) },
-        icon(d.icon), h("span.tip", d.key ? `${d.tip} (${d.key.toUpperCase()})` : d.tip));
+      const b = h("button", { type: "button", title: HINTS[k] || d.tip, "aria-label": d.tip, "aria-pressed": String(!d.action && S.tool === k) },
+        icon(d.icon), h("span.tool-label", d.tip), d.key ? h("kbd", d.key.toUpperCase()) : null);
       b.addEventListener("click", () => chooseTool(k));
       toolsEl.append(b);
     }
@@ -168,15 +172,25 @@ export default function mountEditor(root, ctx) {
 
   // ---------------- yerleşim ----------------
   function fit() {
-    const avail = main.clientWidth - 4;
+    const avail = viewport.clientWidth - 40;
     const maxW = Math.max(...pages.map((p) => p.w));
     S.scale = clamp(avail / maxW, 0.25, 2.2);
     layout();
   }
-  function zoom(f) {
+  function zoom(f, clientX, clientY) {
+    commitEditing();
+    const bounds = viewport.getBoundingClientRect();
+    const x = clientX ?? bounds.left + viewport.clientWidth / 2;
+    const y = clientY ?? bounds.top + viewport.clientHeight / 2;
+    const anchor = P.find((p) => { const r = p.el.getBoundingClientRect(); return y >= r.top && y <= r.bottom; }) || P[visiblePage()];
+    const before = anchor.el.getBoundingClientRect();
+    const px = (x - before.left) / S.scale, py = (y - before.top) / S.scale;
     S.autoFit = false;
     S.scale = clamp(S.scale * f, 0.25, 5);
     layout();
+    const after = anchor.el.getBoundingClientRect();
+    viewport.scrollLeft += after.left + px * S.scale - x;
+    viewport.scrollTop += after.top + py * S.scale - y;
   }
   function layout() {
     zoomEl.textContent = `%${Math.round(S.scale * 100)}`;
@@ -193,19 +207,60 @@ export default function mountEditor(root, ctx) {
   const onResize = debounce(() => { if (S.autoFit) fit(); }, 150);
   window.addEventListener("resize", onResize);
 
+  let spaceHeld = false, pan = null;
+  viewport.addEventListener("wheel", (e) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    zoom(Math.exp(-clamp(e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? viewport.clientHeight : 1), -120, 120) * 0.002), e.clientX, e.clientY);
+  }, { passive: false });
+  viewport.addEventListener("pointerdown", (e) => {
+    if (!(e.button === 1 || (e.button === 0 && (e.ctrlKey || e.metaKey || spaceHeld || S.tool === "hand")))) return;
+    e.preventDefault();
+    e.stopPropagation();
+    commitEditing();
+    pan = { id: e.pointerId, x: e.clientX, y: e.clientY, left: viewport.scrollLeft, top: viewport.scrollTop };
+    viewport.setPointerCapture(e.pointerId);
+    viewport.classList.add("panning");
+  }, true);
+  viewport.addEventListener("pointermove", (e) => {
+    if (!pan || e.pointerId !== pan.id) return;
+    viewport.scrollLeft = pan.left + pan.x - e.clientX;
+    viewport.scrollTop = pan.top + pan.y - e.clientY;
+  });
+  function endPan() { if (pan && viewport.hasPointerCapture(pan.id)) viewport.releasePointerCapture(pan.id); pan = null; viewport.classList.remove("panning"); }
+  viewport.addEventListener("pointerup", endPan);
+  viewport.addEventListener("pointercancel", endPan);
+  viewport.addEventListener("lostpointercapture", endPan);
+  function releaseSpace(e) { if (!e || e.code === "Space") { spaceHeld = false; viewport.classList.remove("pan-ready"); } }
+  function loseFocus() { releaseSpace(); endPan(); }
+  document.addEventListener("keyup", releaseSpace);
+  window.addEventListener("blur", loseFocus);
+
+  function showShortcuts() {
+    return dialog({ title: "PDF düzenleme kısayolları", body: h("div.shortcut-list",
+      [["Ctrl + tekerlek / Ctrl + + veya −", "Yakınlaştır / uzaklaştır"], ["Ctrl + 0", "Sayfa genişliğine sığdır"],
+       ["Ctrl + sürükle / Boşluk + sürükle", "Sayfada gezin"], ["Orta fare tuşu / G", "Sürükle / gezinme aracını seç"],
+       ["Ctrl + S", "Değişiklikleri işle ve sonuç ekranını aç"], ["Ctrl + Z / Ctrl + Y", "Geri al / yinele"],
+       ["Delete / Ctrl + D", "Seçili öğeyi sil / çoğalt"], ["Ok tuşları / Shift + ok", "Öğeyi 1 / 10 nokta taşı"],
+       ["Escape", "Seçimi bırak"], ...palette.filter((k) => TOOLDEF[k]?.key).map((k) => [TOOLDEF[k].key.toUpperCase(), TOOLDEF[k].tip])]
+       .map(([key, label]) => h("div", h("kbd", key), h("span", label)))), actions: [{ label: "Kapat", value: null }] });
+  }
+
   function visiblePage() {
     let best = 0, bestVis = -Infinity;
     P.forEach((p, i) => {
       const r = p.el.getBoundingClientRect();
-      const vis = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0);
+      const bounds = viewport.getBoundingClientRect();
+      const vis = Math.min(r.bottom, bounds.bottom) - Math.max(r.top, bounds.top);
       if (vis > bestVis) { bestVis = vis; best = i; }
     });
     return best;
   }
   function pageCenter(n) {
     const r = P[n].el.getBoundingClientRect();
-    const cy = clamp((innerHeight / 2 - r.top) / S.scale, 40, pages[n].h - 40);
-    return { x: pages[n].w / 2, y: cy };
+    const bounds = viewport.getBoundingClientRect();
+    return { x: clamp((bounds.left + viewport.clientWidth / 2 - r.left) / S.scale, 0, pages[n].w),
+      y: clamp((bounds.top + viewport.clientHeight / 2 - r.top) / S.scale, 0, pages[n].h) };
   }
   const ptOf = (e, n) => {
     const r = P[n].ov.getBoundingClientRect();
@@ -864,6 +919,7 @@ export default function mountEditor(root, ctx) {
     if (mode === "redact" && S.hits.length) { hintEl.textContent = `${S.hits.length} otomatik eşleşme + ${S.objs.filter((o) => o.type === "redact").length} elle seçilen alan`; return; }
     if (mode === "crop" && ctx.opts.mode === "auto") { hintEl.textContent = "Beyaz kenarlar otomatik bulunacak."; return; }
     hintEl.textContent = HINTS[S.tool] || "";
+    viewport.classList.toggle("hand-tool", S.tool === "hand");
   }
 
   // ---------------- özellikler paneli ----------------
@@ -1099,9 +1155,16 @@ export default function mountEditor(root, ctx) {
     const typing = /INPUT|TEXTAREA|SELECT/.test(tag) || (document.activeElement && document.activeElement.isContentEditable);
     if (document.querySelector("dialog[open]")) return;
     const mod = e.ctrlKey || e.metaKey;
+    if (mod && ["+", "=", "-", "0"].includes(e.key) && !typing) {
+      e.preventDefault();
+      if (e.key === "0") { S.autoFit = true; fit(); } else zoom(e.key === "-" ? 1 / 1.2 : 1.2);
+      return;
+    }
+    if (mod && e.key.toLowerCase() === "s") { e.preventDefault(); if (!e.repeat) { commitEditing(); ctx.run(); } return; }
     if (mod && e.key.toLowerCase() === "z" && !typing) { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
     if (mod && e.key.toLowerCase() === "y" && !typing) { e.preventDefault(); redo(); return; }
     if (typing) return;
+    if (e.code === "Space") { e.preventDefault(); spaceHeld = true; viewport.classList.add("pan-ready"); return; }
     const o = selected();
     if ((e.key === "Delete" || e.key === "Backspace") && o) {
       e.preventDefault();
@@ -1171,6 +1234,7 @@ export default function mountEditor(root, ctx) {
   if (S.tool === "textedit") toast("Düzeltmek istediğin satıra tıkla.");
 
   return {
+    hasChanges() { commitEditing(); return !!(S.objs.length || S.fieldVals.size); },
     options() {
       commitEditing();
       if (mode === "redact") return { areas: S.objs.filter((o) => o.type === "redact").map((o) => ({ page: o.page, x: o.x, y: o.y, w: o.w, h: o.h })) };
@@ -1207,6 +1271,9 @@ export default function mountEditor(root, ctx) {
       return buildOps().length ? null : "Henüz bir değişiklik yapmadın.";
     },
     destroy() {
+      loseFocus();
+      document.removeEventListener("keyup", releaseSpace);
+      window.removeEventListener("blur", loseFocus);
       document.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onResize);
       offOpts();

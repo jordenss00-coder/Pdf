@@ -1,5 +1,15 @@
 # Değişiklik günlüğü
 
+## 0.3.1 — kullanım kolaylığı, 1 Ekim 2026
+
+- Tek PDF yüklemesinden doğrudan düzenleyiciye geçiş; çoklu yüklemede önizlemeler.
+- Ctrl + tekerlek ve klavye ile yakınlaştırma; Ctrl/Boşluk/orta tuş ile gezinme.
+- Adları ve tuşları görünür araç paneli, gezinme aracı ve kısayol yardım penceresi.
+- PDF için ayrı kaydırma alanı; sağ panelle üst üste binme düzeltildi.
+- Ctrl + S ile sonuç oluşturma; açık belgeyi başka araca aktarma menüsü.
+- Düzenlenebilir metnin imleç/stil seçicisi plaintext-only durumuna düzeltildi.
+- Gerçek Edge etkileşim regresyon betiği: `scripts/check-editor.cjs`.
+
 ## 0.3.0 — Windows masaüstü ön sürümü, 1 Ekim 2026
 
 - pywebview/WebView2 ile kendi penceresinde çalışan masaüstü başlatıcısı.

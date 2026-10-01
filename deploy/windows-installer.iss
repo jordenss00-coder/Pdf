@@ -1,4 +1,4 @@
-#define AppVersion "0.3.0"
+#define AppVersion "0.3.1"
 [Setup]
 AppId={{A77D5BC2-54A5-4B23-A321-2817D533FEC0}
 AppName=PDF Atölye

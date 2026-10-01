@@ -3,7 +3,7 @@ import { h, icon, clear, toast, fmtBytes, dialog, askPassword, pickFiles, dropTa
 import * as api from "./api.js";
 import { CATS, TOOLS, ACCEPT, byId, catOf, toolsFor, kindsLabel, needsMet } from "./tools.js";
 import { defaults, renderOptions } from "./options.js";
-import mountFiles from "./ws-files.js";
+import mountFiles, { fileThumb } from "./ws-files.js";
 import mountPages from "./ws-pages.js";
 import mountEditor from "./editor.js";
 import { mountCompare, mountHtml, mountScan } from "./ws-misc.js";
@@ -129,11 +129,17 @@ function homeView() {
     let infos;
     try { infos = await uploadFiles(fl, { allowLocked: true }); } catch (e) { toast(e.message, "err"); return; }
     if (!infos.length) return;
+    if (infos.length === 1 && infos[0].kind === "pdf" && !infos[0].locked) {
+      handoff = infos;
+      go("#/t/edit");
+      return;
+    }
     const kinds = [...new Set(infos.map((i) => i.kind))];
     const list = toolsFor(kinds).filter((t) => needsMet(t, caps));
     clear(files).append(h("div.suggest",
       h("h2", "Bu dosyalarla ne yapalım?"),
       h("p.files-line", infos.map((i) => i.name).join(" · ")),
+      h("div.upload-previews", infos.map((f) => h("figure", fileThumb(f, 360), h("figcaption", f.name)))),
       list.length
         ? h("div.tool-grid", list.map((t) => {
             const a = tile(t);
@@ -284,6 +290,7 @@ function toolView(t) {
     ws = null;
     clear(app);
     const wrap = h("div.wrap", toolHead(t));
+    if (t.ws === "editor") wrap.classList.add("editor-wrap");
     app.append(wrap);
     if (!needsMet(t, caps)) {
       wrap.append(h("div.note.warn", missingNote(t)));
@@ -306,6 +313,21 @@ function toolView(t) {
       h("div.panel-body", aiNote, slot, optsUi && optsUi.el.childElementCount ? [slot.childElementCount ? h("hr.panel-sep") : null, optsUi.el] : null),
       h("div.panel-foot", runBtn));
     wrap.append(h("div.tool-layout", space, panel));
+    if (t.ws === "editor" && state.files[0]) {
+      const switcher = h("select", { "aria-label": "Bu PDF ile başka işlem yap", onchange: async (e) => {
+        const id = e.target.value;
+        e.target.value = "";
+        if (!id) return;
+        if (ws?.hasChanges?.()) {
+          const leave = await dialog({ title: "Kaydedilmemiş değişiklikler", body: h("p", "Önce değişiklikleri kaydedersen sonraki araçta düzenlenmiş PDF'yi kullanabilirsin. Şimdi geçersen özgün dosya açılır."), actions: [{ label: "Düzenlemeye devam et", value: false }, { label: "Özgün dosyayla geç", value: true }] });
+          if (!leave) return;
+        }
+        handoff = state.files;
+        go(`#/t/${id}`);
+      } }, h("option", { value: "" }, "Başka PDF aracı seç…"),
+      toolsFor(["pdf"]).filter((x) => x.id !== t.id && needsMet(x, caps)).map((x) => h("option", { value: x.id }, x.name)));
+      space.append(h("div.document-bar", h("strong", { title: state.files[0].name }, state.files[0].name), switcher));
+    }
     ws = WORKSPACES[t.ws](space, ctx);
     if (t.loadMeta && state.files[0]) loadMeta(state.files[0].id);
     if (!slot.childElementCount && !(optsUi && optsUi.el.childElementCount)) {
