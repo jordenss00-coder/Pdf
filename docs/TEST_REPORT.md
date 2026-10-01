@@ -1,5 +1,27 @@
 # Test raporu — 1 Ekim 2026
 
+## Windows masaüstü 0.3.0
+
+- Kaynak masaüstü başlatıcısında özel sunucu → yükle → döndür/DOCX/Markdown →
+  indir → sil testi geçti (`test-results/desktop-source-smoke.json`).
+- Regresyon paketi 27 teste genişletildi. İlk koşuda ikinci uygulama örneğinin
+  kilitli dosya baytını okuması Windows'ta PermissionError verdi. Boyut kontrolü
+  dosya meta verisine taşındı; dört masaüstü birim testi yeniden geçti.
+- Yerelde 27 regresyon testi geçti (5,930 saniye).
+- Paketlenmiş EXE, gerçek WebView2 penceresi, kurulum ve kaldırma kontrolleri
+  [Windows derlemesinde](https://github.com/jordenss00-coder/Pdf/actions/runs/36850545847)
+  **başarılı**. Test edilen kod: `4399136`.
+- [Genel CI](https://github.com/jordenss00-coder/Pdf/actions/runs/36850545761)
+  de başarılı: Windows/Linux regresyonu, JavaScript ve Docker kontrolleri.
+- Gerçek pencerenin açılması otomatik sınandı; yerel dosya seçme/indirme
+  diyalogları ve tüm araç seçenekleri elle doğrulanmadı.
+- GitHub'da üretilen ZIP bu bilgisayarda ayrı test klasörüne açıldı. Paketli
+  EXE'nin işlem testi ve WebView2 testi geçti: ana sayfada 43 araç kartı.
+  Yerel kanıtlar: `test-results/packaged-local-smoke.json` ve
+  `test-results/packaged-local-ui.json`. EXE ve ZIP SHA-256 değerleri yayımlanan
+  SHA256SUMS.txt ile eşleşti.
+- Önceki web sürümünün sonuçları aşağıda tarihsel kayıt olarak korunuyor.
+
 ## Ortam
 
 Windows, proje `.venv` ortamı (Python 3.14.6). Yapay örnek PDF'ler ve ayrı

@@ -2,9 +2,9 @@
 
 ## Kullanım
 
-GitHub Releases'teki `PDF-Atolye-Setup.exe` kurulum dosyası hedefleniyor.
-Paket henüz doğrulama aşamasındaysa Actions çıktısı nihai sürüm olarak değerlendirilmez.
-Son durum STATUS ve TEST_REPORT'tadır.
+[PDF-Atolye-Setup.exe dosyasını indir](https://github.com/jordenss00-coder/Pdf/releases/download/v0.3.0/PDF-Atolye-Setup.exe),
+çalıştır ve kurulumdan sonra Başlat menüsünden PDF Atölye'yi aç.
+Bu bir ön sürümdür; son durum STATUS ve TEST_REPORT'tadır.
 
 - Windows 10/11, x64; Microsoft Edge WebView2 Runtime gerekir.
 - Python kullanıcı bilgisayarına ayrıca kurulmaz; paketin içindedir.
@@ -60,7 +60,8 @@ klasörü EXE ile birlikte tutulmalıdır.
 
 GitHub `Build Windows Desktop` iş akışı paketi üretir; paketlenmiş EXE'yi
 yükle → döndür/DOCX/Markdown → indir döngüsünden geçirir; sessiz kurulum,
-kurulmuş EXE ve kaldırma adımlarını kontrol eder. Bu kontroller gerçek
+kurulmuş EXE ve kaldırma adımlarını kontrol eder. Gerçek WebView2 penceresinde
+ana sayfanın yüklenmesi de otomatik sınanır. Bu kontroller gerçek
 pencerede dosya seçme/indirme etkileşim testinin yerini tutmaz.
 
 Kaynaklar: [pywebview API](https://pywebview.flowrl.com/api/),

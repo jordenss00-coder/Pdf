@@ -26,7 +26,12 @@ uygulamasına dönüştürmek. Araç kapsamı ve seç → işle → indir akış
 Kullanıcı tercihiyle öncelik Windows uygulamasına geçti; canlı site yayını ertelendi.
 Masaüstü başlatıcısı, özel yerel API erişimi, kullanıcı profiline veri/ayar
 konumu, EXE paketleme, Inno Setup kurulumu ve GitHub Windows derleme akışı eklendi.
-Kaynak sürümün motor testleri ve paketli EXE/kurulum kontrolleri devam ediyor.
+Yerelde 27 test geçti. GitHub'da paketli EXE ile PDF işlemleri, gerçek WebView2
+penceresi, kurulum ve kaldırma testleri başarılı. Test edilen kod: `4399136`.
+[Derleme ve testler](https://github.com/jordenss00-coder/Pdf/actions/runs/36850545847).
+Paket bu bilgisayarda da PDF işlemleri ve pencere açılış testini geçti.
+[0.3.0 Windows ön sürümü](https://github.com/jordenss00-coder/Pdf/releases/tag/v0.3.0):
+kurulum EXE'si, ZIP ve SHA-256 dosyası.
 
 ### Önceki web temeli — 0.2.0
 
@@ -55,12 +60,14 @@ dönüşümleri geçti. Sonraki yalnızca belge commit'leri bu kod sürümünü 
 
 ## Yayın durumu
 
-Canlı URL henüz yok. Sunucu/alan adı seçimi bekleniyor. Docker bu makinede
-bulunmadığından GitHub Actions'ın Linux ortamında derlenip çalıştırıldı.
+Windows uygulaması önceliklidir; alan adı veya barındırma gerektirmez.
+Web yayını kullanıcı tercihiyle ertelendi. Docker bu makinede bulunmadığından
+GitHub Actions'ın Linux ortamında derlenip çalıştırıldı.
 
 ## Kalanlar / yapılamayanlar
 
-- Sunucu hesabı/alan adı verilmediği için canlı yayın yapılmadı.
+- Canlı web yayını ertelendi; masaüstü kullanımı için gerekli değil.
+- Windows kod imzalama ve otomatik güncelleme sonraki sürüme bırakıldı.
 - Herkese açık anonim hizmet hazır değil; bu sürüm parola korumalı küçük ekip içindir.
 - Sunucuda HTML/URL ve AI kapalı; izole tarayıcı ve kullanıcı bazlı API yönetimi gerekir.
 - İmza daveti, uzak mobil tarama, bulut depolama entegrasyonu yok.

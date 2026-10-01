@@ -1,6 +1,6 @@
 # Değişiklik günlüğü
 
-## 0.3.0 — Windows masaüstü (hazırlanıyor)
+## 0.3.0 — Windows masaüstü ön sürümü, 1 Ekim 2026
 
 - pywebview/WebView2 ile kendi penceresinde çalışan masaüstü başlatıcısı.
 - Gizli arka plan motoru; kapanışta alt süreçlerin durdurulması.
@@ -9,6 +9,9 @@
 - Paketli EXE'de PDF worker işlemleri için ayrı giriş noktası.
 - PyInstaller klasör paketi, Inno Setup kullanıcı kurulumu/kısayol/kaldırma.
 - GitHub'da EXE, kurulum, paketli işlem ve kaldırma testleri.
+- Gerçek WebView2 penceresi hem GitHub'da hem yerel bilgisayarda doğrulandı.
+- Tek örnek kilidinde Windows PermissionError düzeltildi; 27 yerel test geçti.
+- GitHub Releases için kurulum EXE'si, ZIP ve SHA-256 bütünlük dosyası.
 
 ## 0.2.0 — 1 Ekim 2026
 

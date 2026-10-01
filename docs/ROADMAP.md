@@ -1,5 +1,20 @@
 # Geliştirme planı
 
+## Öncelik değişikliği — Windows masaüstü
+
+Kullanıcı artık web yayını yerine Windows uygulaması istiyor. Aşağıdaki web
+altyapısı korunur; canlı sunucu/alan adı işleri ertelenmiştir.
+
+- [x] Kendi penceresinde açılan başlatıcı, kullanıcı profiline veri ve ayarlar
+- [x] EXE içindeki worker işlemleri, tek örnek kilidi ve özel API erişimi
+- [x] PyInstaller/Inno Setup ve GitHub paket üretim akışı
+- [x] Paketlenmiş EXE'de PDF işlem testi
+- [x] Gerçek WebView2 penceresinin açılma testi
+- [x] Kurulum, kurulu EXE ve kaldırma testi
+- [x] İndirilebilir GitHub ön sürümü ve son test raporu
+- [ ] Kullanıcının bilgisayarında dosya seçme/indirme ve imza/kamera kontrolleri
+- [ ] Kod imzalama ve otomatik güncelleme (sonraki sürüm)
+
 ## 1 — Kurulabilir ve test edilebilir temel
 
 - [x] Windows/Linux kurulum betikleri, Docker ve GitHub CI tanımları
