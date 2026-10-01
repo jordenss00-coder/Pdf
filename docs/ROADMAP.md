@@ -17,7 +17,11 @@ altyapısı korunur; canlı sunucu/alan adı işleri ertelenmiştir.
 - [x] Okunabilir araç adları, görünür kısayollar ve yardım penceresi
 - [x] Editör etkileşim testi: yazma, geri alma, çıktı üretme ve küçük pencere
 - [ ] Kullanıcının bilgisayarında dosya seçme/indirme ve imza/kamera kontrolleri
-- [ ] Kod imzalama ve otomatik güncelleme (sonraki sürüm)
+- [x] Uygulama içi güncelleme denetimi, SHA-256 doğrulamalı indirme ve kurulum (0.4.0, dalda)
+- [x] Kurulumun eski sürümü algılayıp önce kaldırması (0.4.0, dalda)
+- [x] Karanlık tema seçimi ve görsel iyileştirmeler (0.4.0, dalda)
+- [ ] 0.4.0 için CI'da yükseltme ve uçtan uca güncelleme testleri — [WIP-0.4.0.md](WIP-0.4.0.md)
+- [ ] Kod imzalama (sonraki sürüm)
 
 ## 1 — Kurulabilir ve test edilebilir temel
 

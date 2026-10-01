@@ -21,6 +21,13 @@ uygulamasına dönüştürmek. Araç kapsamı ve seç → işle → indir akış
 
 ## Bu geliştirme
 
+### Devam ediyor: 0.4.0 — güncelleme, yükseltmeli kurulum, karanlık tema
+
+`wip/0.4.0-updater` dalında. Uygulama içi güncelleme, eski sürümü kaldırıp kuran
+kurulum ve tema seçimi kodlandı; yerel testler geçti. Kurulum betiği henüz GitHub'da
+derlenip sınanmadı. Ayrıntılar, kalan işler ve yeni bilgisayarda devam etme adımları:
+[WIP-0.4.0.md](WIP-0.4.0.md).
+
 ### Kullanım kolaylığı — 0.3.1
 
 Tek PDF yüklemesinde doğrudan düzenleyici açılıyor. Ctrl + tekerlek yakınlaştırması,
