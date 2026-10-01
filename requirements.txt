@@ -1,0 +1,14 @@
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+python-multipart>=0.0.18,<1
+pymupdf>=1.26,<2
+pikepdf>=9,<11
+pdf2docx>=0.5.8,<1
+python-pptx>=1,<2
+openpyxl>=3.1,<4
+pillow>=11,<13
+opencv-python-headless>=4.9,<5
+numpy>=1.26,<3
+pywin32>=306; sys_platform == "win32"
+pyhanko>=0.25,<1
+anthropic>=0.50,<2

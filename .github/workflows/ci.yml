@@ -1,0 +1,36 @@
+name: Verify PDF Atolye
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m unittest discover -s tests -v
+      - run: node scripts/check-js.mjs
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t pdf-atolye:test .
+      - name: Check container health and installed converters
+        run: |
+          docker run -d --name pdf-test -p 8765:8765 pdf-atolye:test
+          for i in $(seq 1 30); do
+            if curl --fail http://localhost:8765/api/health; then break; fi
+            sleep 2
+          done
+          curl --fail http://localhost:8765/api/health
+          docker exec pdf-test python -c "from app.backends import capabilities; from app.fonts import get_font; c=capabilities(); assert c['libreoffice'] and c['ghostscript']; assert get_font().has_glyph(ord('ğ'))"

@@ -1,0 +1,29 @@
+services:
+  pdf:
+    build: .
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:8765:8765"
+    environment:
+      PDF_MODE: hosted
+      PDF_ALLOWED_HOSTS: "127.0.0.1,localhost,${PDF_DOMAIN:-localhost}"
+      PDF_SESSION_SECRET: "${PDF_SESSION_SECRET:?Set a random secret of at least 32 characters in .env}"
+      PDF_ACCESS_PASSWORD: "${PDF_ACCESS_PASSWORD:?Set a password of at least 12 characters in .env}"
+      PDF_SECURE_COOKIE: "${PDF_SECURE_COOKIE:-true}"
+      PDF_MAX_UPLOAD_MB: "${PDF_MAX_UPLOAD_MB:-50}"
+      PDF_RETENTION_HOURS: "${PDF_RETENTION_HOURS:-2}"
+      PDF_MAX_JOBS: "2"
+      PDF_JOB_TIMEOUT: "180"
+    volumes:
+      - pdf-data:/app/data
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    mem_limit: 2g
+    cpus: 2
+    pids_limit: 256
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+volumes:
+  pdf-data:
