@@ -44,8 +44,7 @@ def show_error(message):
 class SingleInstance:
     def __init__(self, root):
         self.file = open(root / "desktop.lock", "a+b")
-        self.file.seek(0)
-        if not self.file.read(1):
+        if os.fstat(self.file.fileno()).st_size == 0:
             self.file.write(b"0")
             self.file.flush()
         self.file.seek(0)
