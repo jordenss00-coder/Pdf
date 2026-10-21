@@ -34,6 +34,8 @@
 
   --accent: var(--c);
   --on-accent: #fff;
+  /* Kategori rengindeki yazı: sarı ve mavi tonlar zemin üzerinde okunur kalsın diye mürekkeple karışır. */
+  --accent-text: color-mix(in srgb, var(--accent) 50%, var(--ink));
   --danger: #c4231b;
   --ok: #008a4e;
 
@@ -90,6 +92,8 @@ img { display: block; max-width: 100%; }
 .hint { font-size: 12.5px; color: var(--ink-3); line-height: 1.45; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 :focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+/* Sayfa geçişinde ekran okuyucu için odaklanan içerik alanı; Tab ile ulaşılmaz, çerçeve çizgi gibi görünür. */
+#app:focus { outline: none; }
 ::selection { background: color-mix(in srgb, var(--c) 30%, transparent); }
 svg.lucide { width: 1em; height: 1em; stroke-width: 2; flex: none; }
 .spin { animation: spin .9s linear infinite; }
@@ -267,7 +271,7 @@ input[type="range"] { accent-color: var(--accent); width: 100%; }
 .cards button b { font-size: 14px; }
 .cards button span { font-size: 12.5px; color: var(--ink-2); }
 .cards button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-.cards button[aria-pressed="true"] b { color: var(--accent); }
+.cards button[aria-pressed="true"] b { color: var(--accent-text); }
 
 .pos9 { display: grid; grid-template-columns: repeat(3, 34px); gap: 4px; padding: 6px; border: 1px solid var(--rule-2); border-radius: var(--r); width: max-content; background: var(--sheet); }
 .pos9 button { width: 34px; height: 26px; border: 1px solid var(--rule); border-radius: 3px; background: var(--paper); }
@@ -318,7 +322,7 @@ input[type="range"] { accent-color: var(--accent); width: 100%; }
 .fcard .order { position: absolute; top: 6px; left: 6px; min-width: 24px; height: 24px; border-radius: 999px; background: var(--ink); color: var(--sheet); font: 600 12px/24px var(--display); text-align: center; }
 .fcard.locked .thumb { outline: 2px dashed var(--my); }
 .fcard.add { cursor: pointer; border-style: dashed; place-items: center; color: var(--ink-2); min-height: 200px; }
-.fcard.add:hover { border-color: var(--accent); color: var(--accent); }
+.fcard.add:hover { border-color: var(--accent); color: var(--accent-text); }
 .sortable-ghost { opacity: .35; }
 
 /* sayfa ızgarası */
@@ -341,7 +345,7 @@ input[type="range"] { accent-color: var(--accent); width: 100%; }
 .pcard .pact { position: absolute; top: 8px; left: 50%; translate: -50% 0; display: flex; gap: 4px; opacity: 0; transition: opacity .12s; }
 .pcard:hover .pact, .pcard:focus-within .pact { opacity: 1; }
 .pact button { width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--rule-2); background: var(--sheet); display: grid; place-items: center; font-size: 15px; }
-.pact button:hover { color: var(--accent); border-color: var(--accent); }
+.pact button:hover { color: var(--accent-text); border-color: var(--accent); }
 
 /* işlem / sonuç */
 .busy {
@@ -373,7 +377,7 @@ input[type="range"] { accent-color: var(--accent); width: 100%; }
 .ai-text { white-space: pre-wrap; font-size: 15px; line-height: 1.6; max-height: 60vh; overflow: auto; padding: 16px; background: var(--paper); border-radius: var(--r); }
 .next-tools { display: flex; flex-wrap: wrap; gap: 8px; }
 .next-tools a { display: inline-flex; gap: 6px; align-items: center; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--rule-2); text-decoration: none; font-size: 13px; font-weight: 600; background: var(--sheet); }
-.next-tools a:hover { border-color: var(--accent); color: var(--accent); }
+.next-tools a:hover { border-color: var(--accent); color: var(--accent-text); }
 
 /* ---------- editör ---------- */
 .editor-wrap { max-width: 1760px; }

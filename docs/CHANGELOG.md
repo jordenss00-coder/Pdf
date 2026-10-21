@@ -1,5 +1,16 @@
 # Değişiklik günlüğü
 
+## Yayımlanmamış — erişilebilirlik ve okunabilirlik, 21 Ekim 2026
+
+- Araç seçeneklerindeki ve düzenleyici özellik panelindeki alan etiketleri alanlara bağlandı.
+  Ekran okuyucu 46 adsız alanı (parola, aralıklar, sayfalar, renk, yazı tipi…) adıyla okuyor;
+  etikete tıklamak alana odaklıyor.
+- Seçili seçenek kartının başlığı ve kategori renkli üzerine gelme yazıları okunur hale geldi.
+  Açık temada İyileştir (sarı) 1,7:1, koyu temada PDF'ten dönüştür / Yapay zekâ (mavi)
+  2,1:1 kontrasttaydı; artık tüm kategorilerde en az 4,8:1.
+- Sayfa geçişinde odaklanan içerik alanının çerçevesi, kısa sayfalarda içeriğin altında
+  ekran boyu mavi bir çizgi gibi görünüyordu; kaldırıldı. Tab ile gezinme çerçeveleri değişmedi.
+
 ## 0.4.0 — güncelleme, yükseltmeli kurulum, karanlık tema, 1 Ekim 2026
 
 - Uygulama içi güncelleme: GitHub sürümleri açılışta en çok 6 saatte bir denetlenir;

@@ -1,6 +1,6 @@
 # Proje durumu
 
-Son güncelleme: 1 Ekim 2026. Bu belge her geliştirme tesliminde güncellenir.
+Son güncelleme: 21 Ekim 2026. Bu belge her geliştirme tesliminde güncellenir.
 
 ## Hedef
 
@@ -20,6 +20,14 @@ uygulamasına dönüştürmek. Araç kapsamı ve seç → işle → indir akış
 - Linux yazı tipi/dönüştürücü desteği ve dağıtım dosyaları eksikti.
 
 ## Bu geliştirme
+
+### Genel kontrol, erişilebilirlik ve okunabilirlik — yayımlanmamış
+
+43 aracın tamamı Türkçe içerikli PDF'lerle ve arayüz varsayılanlarıyla çalıştırıldı; AI
+dışındaki tüm araçlar doğru sonuç verdi. Araç sayfaları masaüstü/mobil ve açık/koyu temada
+hatasız açıldı. Bulunan üç sorun düzeltildi: seçenek alanı etiketlerinin alana bağlı olmaması,
+iki kategoride okunmayan seçili kart yazısı ve kısa sayfalardaki mavi odak çizgisi.
+Ayrıntı: `TEST_REPORT.md`. Yeni sürüm yayımlanmadı.
 
 ### Güncelleme, yükseltmeli kurulum, karanlık tema — 0.4.0
 
