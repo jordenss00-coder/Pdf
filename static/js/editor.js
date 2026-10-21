@@ -1,6 +1,6 @@
 // PDF editörü: sayfalar üzerinde nesne ekleme, mevcut metni düzeltme, form alanları,
 // karartma ve kırpma. Tüm koordinatlar PDF noktası (pt) cinsinden, görünür sayfaya göredir.
-import { h, icon, toast, pickFiles, readAsDataURL, debounce, dialog } from "./ui.js";
+import { h, icon, toast, pickFiles, readAsDataURL, debounce, dialog, fieldLabel } from "./ui.js";
 import * as api from "./api.js";
 import { openSignature } from "./signature.js";
 
@@ -928,7 +928,7 @@ export default function mountEditor(root, ctx) {
     if (ta && document.activeElement !== ta) ta.value = o.text;
   }
 
-  function prop(label, control) { return h("div.field", h("span.field-label", label), control); }
+  function prop(label, control) { return h("div.field", fieldLabel(label, control), control); }
   function colorInput(val, onInput) {
     const c = h("input.input", { type: "color", value: val || "#000000" });
     let started = false;

@@ -35,6 +35,20 @@ export function h(sel, attrs, ...kids) {
   return el;
 }
 
+let labelSeq = 0;
+
+/** Alan etiketi; kontroldeki tek metin/seçim alanına bağlanır (ekran okuyucu adını okur, tıklayınca odaklar). */
+export function fieldLabel(text, control, cls = "") {
+  const label = h(`label.field-label${cls}`, text);
+  const inputs = control.matches("input, select, textarea") ? [control] : [...control.querySelectorAll("input, select, textarea")];
+  const target = inputs.length === 1 && !["checkbox", "radio"].includes(inputs[0].type) ? inputs[0] : null;
+  if (target) {
+    target.id ||= `field-${++labelSeq}`;
+    label.htmlFor = target.id;
+  }
+  return label;
+}
+
 function append(el, kids) {
   for (const k of kids.flat(Infinity)) {
     if (k === null || k === undefined || k === false) continue;

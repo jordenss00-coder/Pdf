@@ -1,3 +1,28 @@
+# Test raporu — 21 Ekim 2026
+
+## Genel kontrol ve erişilebilirlik düzeltmeleri
+
+Linux bulut ortamında (Python 3.13, Chromium 141 / Playwright 1.56), `main` = `8268f94` üzerinde:
+
+- 37 Python testi geçti (2 atlandı, Windows'a özgü); 13 JavaScript modülünün sözdizimi geçerli.
+- `scripts/check-editor.cjs` Chromium ile geçti.
+- `scripts/check-update-ui.cjs` sahte sürüm kaynağına karşı geçti. Güncelleme yalnızca Windows'ta
+  etkin olduğundan test sunucusunda `WINDOWS` bayrağı açıldı; kurulum başlatılmadı.
+- 43 aracın tamamı, arayüzün gönderdiği varsayılan seçeneklerle Türkçe karakterli yapay PDF'ler
+  üzerinde API'den çalıştırıldı. AI araçları dışında hepsi sonuç üretti. Eklenen/değiştirilen
+  Türkçe metin (filigran, üst/alt bilgi, düzenleyici metni, bul-değiştir, metin düzeltme)
+  çıktıda doğru okundu; karartmada TC kimlik, IBAN, telefon ve e-posta metinden silindi;
+  karşılaştırma 3 kaldırılan / 2 eklenen kelimeyi doğru buldu.
+- Word (TXT), Excel ve PowerPoint → PDF LibreOffice ile, Türkçe OCR görsel ve taramada geçti.
+  HTML → PDF Chromium ile geçti; ortam root olarak çalıştığından tarayıcıya `--no-sandbox` eklendi.
+- 43 araç sayfası 1366 × 860 açık ve 390 × 844 koyu görünümde dosya yüklenerek açıldı:
+  JavaScript hatası ve yatay taşma yok. Birleştir, böl, karşılaştır ve tara uçtan uca çalıştı.
+- Düzeltme sonrası: görünür seçenek alanlarında adsız alan kalmadı (önce 46);
+  seçili kart başlığı kontrastı açıkta en az 4,87:1, koyuda en az 5,92:1.
+
+Doğrulanmayanlar: AI araçları (anahtar ve model yok), Windows/Edge ve paketli EXE
+(bu teslimde Windows derlemesi çalıştırılmadı), Microsoft Office COM dönüştürücüsü.
+
 # Test raporu — 1 Ekim 2026
 
 ## Windows masaüstü 0.4.0 — güncelleme, yükseltmeli kurulum, tema

@@ -1,5 +1,5 @@
 // Şemadan seçenek paneli üretir.
-import { h, icon, pickFiles, readAsDataURL, toast } from "./ui.js";
+import { fieldLabel, h, icon, pickFiles, readAsDataURL, toast } from "./ui.js";
 import * as api from "./api.js";
 
 export function defaults(schema = []) {
@@ -42,7 +42,7 @@ export function renderOptions(schema, opts, { caps = {}, onChange = () => {} } =
 
 function wrapField(f, control, extra) {
   return h("div.field",
-    f.label ? h("label.field-label", f.label) : null,
+    f.label ? fieldLabel(f.label, control) : null,
     control,
     f.hint ? h("div.hint", f.hint) : null,
     extra || null);
@@ -83,7 +83,7 @@ function field(f, opts, set, caps) {
       const upd = () => { out.textContent = fmt(Number(inp.value)); };
       inp.addEventListener("input", () => { set(k, Number(inp.value)); upd(); });
       upd();
-      return { wrap: wrapField({ ...f, label: null }, h("div", h("div.row", h("label.field-label.grow", f.label), out), inp)) };
+      return { wrap: wrapField({ ...f, label: null }, h("div", h("div.row", fieldLabel(f.label, inp, ".grow"), out), inp)) };
     }
     case "check": {
       const inp = h("input", { type: "checkbox", checked: !!opts[k] });
